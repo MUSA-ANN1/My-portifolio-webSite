@@ -1,0 +1,2 @@
+github: https://github.com/MUSA-ANN1/Turkmenistan-s-Medicinal-Plants-app,
+play market: https://play.google.com/store/apps/details?id=com.medicine.kitaphana

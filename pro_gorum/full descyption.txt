@@ -1,0 +1,11 @@
+Görüm is an augmented reality-powered marketplace built specifically for Turkmenistan. It lets buyers view furniture, electronics, and other products in their actual living spaces before purchasing — bridging the gap between online shopping and real-world experience.
+
+Key Features:
+• AR product visualization using ARCore and Filament rendering engine
+• Seller verification system with identity validation
+• Blind review system — unbiased ratings from verified buyers
+• Deal management with negotiation and offer tracking
+• Real-time notifications for price drops and new listings
+• Multi-category browsing: furniture, tech, home goods, and more
+
+The app is designed to bring modern e-commerce capabilities to the Turkmen market with a focus on trust, transparency, and immersive user experience.

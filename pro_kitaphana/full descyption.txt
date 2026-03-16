@@ -1,0 +1,11 @@
+Kitaphana is a modern library management application with an integrated AI chat assistant called TakykAI.
+
+Key Features:
+• TakykAI — built-in AI chat assistant for book recommendations, summaries, and literary Q&A
+• Dynamic seasonal app icons that change based on the time of year
+• Complete book management system with categories, favorites, and reading progress
+• Search and discovery with smart recommendations
+• Clean, intuitive Material Design interface
+• Offline reading list and bookmarks
+
+The app reimagines the traditional library experience with modern AI capabilities, making book discovery and management both intelligent and delightful.

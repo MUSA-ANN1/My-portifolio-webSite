@@ -1,0 +1,12 @@
+Dermanlyk Ösümlikleri is a comprehensive offline reference application featuring the medicinal plants of Turkmenistan, based on the acclaimed 17-volume book series "Medicinal Plants of Turkmenistan."
+
+Key Features:
+• Complete database of traditional Turkmen medicinal plants with detailed descriptions
+• AI-powered plant recognition using TensorFlow Lite — snap a photo to identify plants
+• Built-in Gemini AI assistant for answering questions about herbal medicine
+• Multi-language support: Turkmen, Russian, English, Turkish, and Arabic
+• Fully offline — works without internet connection in remote areas
+• Rich botanical illustrations and preparation guides
+• Search and filter by symptoms, plant family, or region
+
+The app serves as a digital preservation of Turkmenistan's rich herbal medicine heritage, making centuries of botanical knowledge accessible to everyone.

@@ -1,0 +1,1 @@
+Offline reference app for medicinal plants of Turkmenistan. Based on 17-volume book series.
