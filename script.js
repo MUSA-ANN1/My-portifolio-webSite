@@ -5,6 +5,9 @@
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+    let currentLang = 'en';
+    let projectsData = [];
+    let certsData = [];
 
     // ============================================
     // AUTO-CALCULATE AGE & EXPERIENCE
@@ -335,7 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i <= 20; i++) {
             const url = `./${folder}/screen_shot${i}.jpg`;
             if (await checkImage(url)) shots.push(url);
-            else break;
+            const url_png = `./${folder}/screen_shot${i}.png`;
+            if (await checkImage(url_png)) shots.push(url_png);
         }
         return shots;
     }
@@ -486,15 +490,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderProjects() {
+        if (!projectsGrid) return;
+        projectsGrid.innerHTML = '';
+
+        projectsData.forEach((p, idx) => {
+            const langData = p.translations[currentLang] || {};
+            const name = langData.name || p.name;
+            const shortDesc = langData.short || p.shortDesc;
+
+            const card = document.createElement('div');
+            card.className = 'project-card fade-up visible';
+            card.style.transitionDelay = (idx * 100) + 'ms';
+
+            let screenshotHTML;
+            if (p.screenshots.length) {
+                screenshotHTML = createCarousel(p.screenshots, 'proj-' + idx);
+            } else {
+                const logoInner = p.logoUrl
+                    ? `<img src="${p.logoUrl}" alt="${name}" style="width:64px;height:64px;border-radius:12px;object-fit:contain;">`
+                    : `<div class="card-logo-fallback">${(name[0] || '?')}</div>`;
+                screenshotHTML = `<div class="card-placeholder">${logoInner}</div>`;
+            }
+
+            let badgeHTML = '';
+            if (p.links.isDev) badgeHTML = `<span class="project-badge badge-orange">${translations[currentLang].pro_in_dev}</span>`;
+            else if (p.downloads) badgeHTML = `<span class="project-badge badge-crimson">${p.downloads} ${translations[currentLang].pro_users}</span>`;
+
+            let linksHTML = '';
+            if (p.links.github) linksHTML += `<a href="${p.links.github}" target="_blank" onclick="event.stopPropagation()" aria-label="GitHub">${githubSVG}</a>`;
+            if (p.links.playMarket) linksHTML += `<a href="${p.links.playMarket}" target="_blank" onclick="event.stopPropagation()" aria-label="Play Store">${playSVG}</a>`;
+            if (p.links.googleDrive) linksHTML += `<a href="${p.links.googleDrive}" target="_blank" onclick="event.stopPropagation()" aria-label="Download">${downloadSVG}</a>`;
+
+            const logoBody = p.logoUrl
+                ? `<img class="card-logo" src="${p.logoUrl}" alt="${name}">`
+                : `<div class="card-logo-fallback">${name[0] || '?'}</div>`;
+
+            card.innerHTML = `
+                ${screenshotHTML}
+                <div class="card-body">
+                    <div class="card-top-row">
+                        ${logoBody}
+                        <div class="card-links">${badgeHTML}${linksHTML}</div>
+                    </div>
+                    <h3 class="card-name">${name}</h3>
+                    <p class="card-desc">${shortDesc}</p>
+                    <div class="card-tags">${p.techs.map(t => `<span>${t}</span>`).join('')}</div>
+                </div>
+            `;
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.card-carousel') || e.target.closest('.card-placeholder')) return;
+                openModal(p);
+            });
+            projectsGrid.appendChild(card);
+        });
+        setupAllCarousels();
+    }
+
     async function loadProjects() {
         const listText = await fetchText('./projects.txt');
         if (!listText) {
-            projectsGrid.innerHTML = '<p style="color:#a0a0a0; grid-column: 1/-1;">Projects could not load.</p>';
+            if (projectsGrid) projectsGrid.innerHTML = '<p style="color:#a0a0a0; grid-column: 1/-1;">Projects could not load.</p>';
             return;
         }
 
         const folders = listText.split('\n').map(f => f.trim()).filter(Boolean);
-        const projects = [];
+        projectsData = [];
 
         for (const folder of folders) {
             const [name, shortDesc, fullDesc, techs, linksRaw, downloads] = await Promise.all([
@@ -506,89 +567,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchText(`./${folder}/downloads.txt`),
             ]);
 
+            const folderTranslations = {};
+            for (const l of ['tk', 'ru', 'ja']) {
+                const [lName, lShort, lFull] = await Promise.all([
+                    fetchText(`./${folder}/name_${l}.txt`),
+                    fetchText(`./${folder}/short%20descryption_${l}.txt`),
+                    fetchText(`./${folder}/full%20descyption_${l}.txt`),
+                ]);
+                if (lName || lShort || lFull) folderTranslations[l] = { name: lName, short: lShort, full: lFull };
+            }
+
             const logoExists = await checkImage(`./${folder}/logo.jpg`);
             const screenshots = await getScreenshots(folder);
             const links = parseLinks(linksRaw);
 
-            projects.push({
+            projectsData.push({
                 folder, name: name || folder,
                 shortDesc: shortDesc || '',
                 fullDesc: fullDesc || shortDesc || '',
                 techs: techs ? techs.split(',').map(t => t.trim()) : [],
                 links, downloads, screenshots,
                 logoUrl: logoExists ? `./${folder}/logo.jpg` : null,
+                translations: folderTranslations
             });
         }
 
-        // Sort: dev projects first
-        projects.sort((a, b) => (b.links.isDev ? 1 : 0) - (a.links.isDev ? 1 : 0));
-
-        // Render cards
-        projects.forEach((p, idx) => {
-            const card = document.createElement('div');
-            card.className = 'project-card fade-up';
-            card.style.transitionDelay = (idx * 100) + 'ms';
-
-            // Screenshot area
-            let screenshotHTML;
-            if (p.screenshots.length) {
-                screenshotHTML = createCarousel(p.screenshots, 'proj-' + idx);
-            } else {
-                const logoInner = p.logoUrl
-                    ? `<img src="${p.logoUrl}" alt="${p.name}" style="width:64px;height:64px;border-radius:12px;object-fit:contain;">`
-                    : `<div class="card-logo-fallback">${(p.name[0] || '?')}</div>`;
-                screenshotHTML = `<div class="card-placeholder">${logoInner}</div>`;
-            }
-
-            // Badge
-            let badgeHTML = '';
-            if (p.links.isDev) badgeHTML = '<span class="project-badge badge-orange">In Development</span>';
-            else if (p.downloads) badgeHTML = `<span class="project-badge badge-crimson">${p.downloads} Users</span>`;
-
-            // Links
-            let linksHTML = '';
-            if (p.links.github) linksHTML += `<a href="${p.links.github}" target="_blank" onclick="event.stopPropagation()" aria-label="GitHub">${githubSVG}</a>`;
-            if (p.links.playMarket) linksHTML += `<a href="${p.links.playMarket}" target="_blank" onclick="event.stopPropagation()" aria-label="Play Store">${playSVG}</a>`;
-            if (p.links.googleDrive) linksHTML += `<a href="${p.links.googleDrive}" target="_blank" onclick="event.stopPropagation()" aria-label="Download">${downloadSVG}</a>`;
-
-            // Tags
-            const tagsHTML = p.techs.map(t => `<span>${t}</span>`).join('');
-
-            // Logo in body
-            const logoBody = p.logoUrl
-                ? `<img class="card-logo" src="${p.logoUrl}" alt="${p.name}">`
-                : `<div class="card-logo-fallback">${p.name[0] || '?'}</div>`;
-
-            card.innerHTML = `
-                ${screenshotHTML}
-                <div class="card-body">
-                    <div class="card-top-row">
-                        ${logoBody}
-                        <div class="card-links">${badgeHTML}${linksHTML}</div>
-                    </div>
-                    <h3 class="card-name">${p.name}</h3>
-                    <p class="card-desc">${p.shortDesc}</p>
-                    <div class="card-tags">${tagsHTML}</div>
-                </div>
-            `;
-            card.addEventListener('click', (e) => {
-                // Do not open modal if they clicked the image/carousel area
-                if (e.target.closest('.card-carousel') || e.target.closest('.card-placeholder')) return;
-                openModal(p);
-            });
-            projectsGrid.appendChild(card);
-            observer.observe(card);
-        });
-
-        // Setup Swiper Interactivity
-        setupAllCarousels();
+        projectsData.sort((a, b) => (b.links.isDev ? 1 : 0) - (a.links.isDev ? 1 : 0));
+        renderProjects();
     }
 
     // ============================================
     // PROJECT MODAL
     // ============================================
     function openModal(project) {
-        const { name, fullDesc, techs, links, downloads, screenshots, logoUrl } = project;
+        const langData = project.translations[currentLang] || {};
+        const name = langData.name || project.name;
+        const fullDesc = langData.full || project.fullDesc;
+        const { techs, links, downloads, screenshots, logoUrl } = project;
 
         // Title
         document.getElementById('modal-title').textContent = name;
@@ -621,8 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Badges
         const badgesEl = document.getElementById('modal-badges');
         let badges = '';
-        if (links.isDev) badges += '<span class="project-badge badge-orange">In Development</span>';
-        if (downloads) badges += `<span class="project-badge badge-crimson">${downloads} Users</span>`;
+        if (links.isDev) badges += `<span class="project-badge badge-orange">${translations[currentLang].pro_in_dev}</span>`;
+        if (downloads) badges += `<span class="project-badge badge-crimson">${downloads} ${translations[currentLang].pro_users}</span>`;
         badgesEl.innerHTML = badges;
 
         // Description
@@ -653,8 +668,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // CERTIFICATES MODAL
     // ============================================
     function openCertModal(cert) {
-        document.getElementById('modal-title').textContent = cert.name;
-        document.getElementById('modal-desc').textContent = cert.desc;
+        const langData = cert.translations[currentLang] || {};
+        const name = langData.name || cert.name;
+        const desc = langData.desc || cert.desc;
+
+        document.getElementById('modal-title').textContent = name;
+        document.getElementById('modal-desc').textContent = desc;
 
         // Hide unused project fields
         document.getElementById('modal-badges').innerHTML = '';
@@ -708,16 +727,72 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     // LOAD CERTIFICATES
     // ============================================
-    async function loadCertificates() {
+    function renderCertificates() {
         const certsGrid = document.getElementById('certificates-grid');
-        const listText = await fetchText('./certificates.txt');
-        if (!listText) {
-            if (certsGrid) certsGrid.innerHTML = '<p style="color:#a0a0a0; grid-column: 1/-1;">Could not load certificates.</p>';
-            return;
+        if (!certsGrid) return;
+        certsGrid.innerHTML = '';
+
+        const isMobile = window.innerWidth <= 768;
+        const visibleLimit = isMobile ? 5 : 10;
+
+        certsData.forEach((c, idx) => {
+            const langData = c.translations[currentLang] || {};
+            const name = langData.name || c.name;
+
+            const card = document.createElement('div');
+            card.className = 'cert-card fade-up visible';
+            if (idx >= visibleLimit) card.classList.add('hidden', 'overflow-cert');
+
+            const imgHtml = c.photoUrl
+                ? `<img src="${c.photoUrl}" alt="${name}" class="cert-img">`
+                : `<div class="cert-img" style="display:flex;align-items:center;justify-content:center;color:#555;">No Photo</div>`;
+
+            card.innerHTML = `
+                ${imgHtml}
+                <div class="cert-info">
+                    <h3 class="cert-title">${name}</h3>
+                </div>
+            `;
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.cert-img')) return;
+                openCertModal(c);
+            });
+            certsGrid.appendChild(card);
+        });
+
+        const btnSeeAll = document.getElementById('btn-see-all-certs');
+        if (btnSeeAll) {
+            if (certsData.length <= visibleLimit) {
+                btnSeeAll.style.display = 'none';
+            } else {
+                btnSeeAll.style.display = '';
+                btnSeeAll.setAttribute('data-expanded', 'false');
+                btnSeeAll.innerHTML = `${translations[currentLang].btn_see_all_certs} <svg viewBox="0 0 24 24" fill="none" class="chevron-arrow"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+                btnSeeAll.onclick = () => {
+                    const expanded = btnSeeAll.getAttribute('data-expanded') === 'true';
+                    const hiddenCards = document.querySelectorAll('.overflow-cert');
+                    if (expanded) {
+                        hiddenCards.forEach(c => c.classList.add('hidden'));
+                        btnSeeAll.setAttribute('data-expanded', 'false');
+                        btnSeeAll.innerHTML = `${translations[currentLang].btn_see_all_certs} <svg viewBox="0 0 24 24" fill="none" class="chevron-arrow"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                        document.getElementById('certificates').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        hiddenCards.forEach(c => c.classList.remove('hidden'));
+                        btnSeeAll.setAttribute('data-expanded', 'true');
+                        btnSeeAll.innerHTML = `${translations[currentLang].btn_show_less_certs} <svg viewBox="0 0 24 24" fill="none" class="chevron-arrow"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                    }
+                };
+            }
         }
+    }
+
+    async function loadCertificates() {
+        const listText = await fetchText('./certificates.txt');
+        if (!listText) return;
 
         const folders = listText.split('\n').map(f => f.trim()).filter(Boolean);
-        const certs = [];
+        certsData = [];
 
         for (const folder of folders) {
             const [name, desc] = await Promise.all([
@@ -725,78 +800,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchText(`./${folder}/descryption.txt`)
             ]);
 
-            // Allow checking different extensions for the single photo
+            const folderTranslations = {};
+            for (const l of ['tk', 'ru', 'ja']) {
+                const [lName, lDesc] = await Promise.all([
+                    fetchText(`./${folder}/name_${l}.txt`),
+                    fetchText(`./${folder}/descryption_${l}.txt`),
+                ]);
+                if (lName || lDesc) folderTranslations[l] = { name: lName, desc: lDesc };
+            }
+
             let photoUrl = null;
             if (await checkImage(`./${folder}/photo.jpg`)) photoUrl = `./${folder}/photo.jpg`;
             else if (await checkImage(`./${folder}/photo.png`)) photoUrl = `./${folder}/photo.png`;
 
-            certs.push({
-                folder,
-                name: name || folder,
-                desc: desc || '',
-                photoUrl: photoUrl
+            certsData.push({
+                folder, name: name || folder, desc: desc || '', photoUrl,
+                translations: folderTranslations
             });
         }
-
-        if (!certsGrid) return;
-        certsGrid.innerHTML = '';
-
-        const isMobile = window.innerWidth <= 768;
-        const visibleLimit = isMobile ? 5 : 10;
-
-        certs.forEach((c, idx) => {
-            const card = document.createElement('div');
-            card.className = 'cert-card fade-up visible';
-            // Hide elements beyond the limit
-            if (idx >= visibleLimit) {
-                card.classList.add('hidden', 'overflow-cert');
-            }
-
-            const imgHtml = c.photoUrl
-                ? `<img src="${c.photoUrl}" alt="${c.name}" class="cert-img">`
-                : `<div class="cert-img" style="display:flex;align-items:center;justify-content:center;color:#555;">No Photo</div>`;
-
-            card.innerHTML = `
-                ${imgHtml}
-                <div class="cert-info">
-                    <h3 class="cert-title">${c.name}</h3>
-                </div>
-            `;
-            card.addEventListener('click', (e) => {
-                // Do not open modal if they clicked the image
-                if (e.target.closest('.cert-img')) return;
-                openCertModal(c);
-            });
-            certsGrid.appendChild(card);
-        });
-
-        // See all logic
-        const btnSeeAll = document.getElementById('btn-see-all-certs');
-        if (btnSeeAll) {
-            if (certs.length <= visibleLimit) {
-                btnSeeAll.style.display = 'none';
-            } else {
-                btnSeeAll.addEventListener('click', () => {
-                    const expanded = btnSeeAll.getAttribute('data-expanded') === 'true';
-                    const hiddenCards = document.querySelectorAll('.overflow-cert');
-
-                    if (expanded) {
-                        // Collapse
-                        hiddenCards.forEach(c => c.classList.add('hidden'));
-                        btnSeeAll.setAttribute('data-expanded', 'false');
-                        btnSeeAll.innerHTML = `See all certificates <svg viewBox="0 0 24 24" fill="none" class="chevron-arrow"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
-                        // Scroll back to top of certificates section quickly to avoid jumping feeling lost
-                        document.getElementById('certificates').scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                        // Expand
-                        hiddenCards.forEach(c => c.classList.remove('hidden'));
-                        btnSeeAll.setAttribute('data-expanded', 'true');
-                        btnSeeAll.innerHTML = `Show less certificates <svg viewBox="0 0 24 24" fill="none" class="chevron-arrow"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-                    }
-                });
-            }
-        }
+        renderCertificates();
     }
 
 
@@ -864,9 +886,14 @@ document.addEventListener('DOMContentLoaded', () => {
             journey_title: "My Path",
             hero_scroll: "scroll",
             footer_text: "Built by Musa Annagulyýew <span class=\"dot\">·</span> Turkmenistan 🇹🇲",
+            stats_views: "views",
+            stats_likes: "likes",
             contact_label: "CONTACT",
             contact_title: "Let's Connect",
             contact_desc: "I'm open to collaboration, research opportunities, and scholarship connections. Reach out.",
+            pro_in_dev: "In Development",
+            pro_users: "Users",
+            btn_show_less_certs: "Show less certificates",
             exp_label: "WORK EXPERIENCE",
             exp_title: "Where I've Worked",
             exp_h_iospo: "International Online Subject and Project Olympiad (IOSPO)",
@@ -977,9 +1004,14 @@ document.addEventListener('DOMContentLoaded', () => {
             journey_title: "Meniň ýolum",
             hero_scroll: "aşak süýşür",
             footer_text: "Musa Annagulyýew tarapyndan gurnaldy <span class=\"dot\">·</span> Türkmenistan 🇹🇲",
+            stats_views: "görenler",
+            stats_likes: "halanlar",
             contact_label: "ARAGATNAŞYK",
             contact_title: "Habarlaşalyň",
             contact_desc: "Men hyzmatdaşlyga, gözleg mümkinçiliklerine we talyp haky baglanyşyklaryna açyk. Habarlaşyň.",
+            pro_in_dev: "Işlenilýär",
+            pro_users: "Ulanyjy",
+            btn_show_less_certs: "Az görün",
             exp_label: "TEJRIBE",
             exp_title: "Işleýän ýerlerim",
             exp_h_iospo: "Halkara Onlaýn ders we taslama olimpiadasy (IOSPO)",
@@ -1090,9 +1122,14 @@ document.addEventListener('DOMContentLoaded', () => {
             journey_title: "Моя история",
             hero_scroll: "листайте вниз",
             footer_text: "Создано Мусой Аннагулыевым <span class=\"dot\">·</span> Туркменистан 🇹🇲",
+            stats_views: "просмотров",
+            stats_likes: "лайков",
             contact_label: "КОНТАКТ",
             contact_title: "Свяжемся",
             contact_desc: "Я открыт для сотрудничества, исследовательских возможностей и связей по стипендиям. Пишите.",
+            pro_in_dev: "В разработке",
+            pro_users: "Пользователей",
+            btn_show_less_certs: "Показать меньше сертификатов",
             exp_label: "ОПЫТ РАБОТЫ",
             exp_title: "Где я работал",
             exp_h_iospo: "Международная онлайн-олимпиада по предметам и проектам (IOSPO)",
@@ -1203,9 +1240,14 @@ document.addEventListener('DOMContentLoaded', () => {
             journey_title: "これまでの歩み",
             hero_scroll: "スクロール",
             footer_text: "Musa Annagulyýew による制作 <span class=\"dot\">·</span> トルクメニスタン 🇹🇲",
+            stats_views: "件表示",
+            stats_likes: "いいね",
             contact_label: "連絡先",
             contact_title: "お問い合わせ",
             contact_desc: "コラボレーション、研究機会、奨学金関連の連絡をお待ちしています。ご連絡ください。",
+            pro_in_dev: "開発中",
+            pro_users: "ユーザー",
+            btn_show_less_certs: "表示を減らす",
             exp_label: "職務経歴",
             exp_title: "職務経験",
             exp_h_iospo: "国際オンライン主題・プロジェクトオリンピック (IOSPO)",
@@ -1267,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function updateLanguage(lang) {
+        currentLang = lang;
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
@@ -1279,6 +1322,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.innerHTML = text;
             }
         });
+
+        renderProjects();
+        renderCertificates();
 
         localStorage.setItem('portfolio-lang', lang);
         langBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));

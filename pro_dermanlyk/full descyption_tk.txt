@@ -1,0 +1,12 @@
+Dermanlyk Ösümlikleri Türkmenistanyň dermanlyk ösümliklerini öz içine alýan giňişleýin awtonom (offline) maglumat programmasydyr. Bu programma Türkmenistanyň Gahryman Arkadagynyň "Türkmenistanyň dermanlyk ösümlikleri" atly köp jiltli ylmy-ensiklopedik eserine esaslanýar.
+
+Esasy aýratynlyklary:
+• Türkmenistanyň däp bolan dermanlyk ösümlikleriniň jikme-jik beýany bilen doly maglumat binasy
+• TensorFlow Lite arkaly AI bilen ösümlikleri tanamak — surata düşürip ösümligi anyklaň
+• Ösümlik lukmançylygy baradaky soraglara jogap bermek üçin içki Gemini AI kömekçisi
+• Köp dilli goldaw: Türkmen, Rus, Iňlis, Türk we Arap dilleri
+• Doly awtonom — uzak ýerlerde internet birikmesi bolmazdan işleýär
+• Baý botaniki illýustrasiýalar we taýýarlanyş gollanmalary
+• Simptomlar, ösümlik maşgalasy ýa-da sebit boýunça gözleg we süzgüç
+
+Programma Türkmenistanyň baý dermanlyk mirasyny sanly görnüşde saklamaga we asyrlar boýy toplanan botaniki bilimleri hemmeler üçin elýeterli etmäge hyzmat edýär.

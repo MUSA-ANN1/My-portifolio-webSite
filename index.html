@@ -103,7 +103,7 @@
                     <div class="stat-row"><span class="stat-label" data-i18n="stat_apps">Published Apps</span><span
                             class="stat-value" data-i18n="stat_apps_val">2 on Google Play</span></div>
                     <div class="stat-row"><span class="stat-label" data-i18n="stat_users">Active Users</span><span
-                            class="stat-value">370+</span></div>
+                            class="stat-value" id="stat-users-val">370+</span></div>
                     <div class="stat-row"><span class="stat-label" data-i18n="stat_goal">Goal</span><span
                             class="stat-value" data-i18n="stat_goal_val">MEXT — Univ. of Tokyo</span></div>
                     <div class="stat-row last"><span class="stat-label" data-i18n="stat_status">Status</span><span
@@ -537,6 +537,117 @@
         </div>
     </div>
 
+    <!-- ========== INTERACTION STATS ========== -->
+    <div class="interaction-bar">
+        <div class="interaction-container">
+            <div class="interaction-item">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span id="view-count">...</span>
+                <span class="stat-label-inline" data-i18n="stats_views">views</span>
+            </div>
+            <button id="like-btn" class="like-btn-action">
+                <svg id="heart-icon-svg" class="stat-icon heart-icon" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                    </path>
+                </svg>
+                <span id="like-count">...</span>
+                <span class="stat-label-inline" data-i18n="stats_likes">likes</span>
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        // ============================================
+        // FIREBASE INTERACTION MODULE
+        // ============================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+        // FIREBASE CONFIGURATION (Placeholder)
+        // USER: Please replace the following fields with your actual Firebase project settings.
+        const firebaseConfig = {
+        apiKey: "AIzaSyAiOUvPB6cJKudtWc7P_debeBn2GryXUpo",
+        authDomain: "my-portifolio-website-project.firebaseapp.com",
+        projectId: "my-portifolio-website-project",
+        storageBucket: "my-portifolio-website-project.firebasestorage.app",
+        messagingSenderId: "970465356433",
+        appId: "1:970465356433:web:7cb5619031294d12126d30",
+        measurementId: "G-Q1G1GNW1ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const viewsRef = ref(db, 'stats/site_views');
+        const likesRef = ref(db, 'stats/site_likes');
+        const usersOffsetRef = ref(db, 'stats/active_users_offset');
+
+        // 1. AUTO-INCREMENT VIEW COUNTER (with Hostname check)
+        const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        if (!isLocal) {
+            window.addEventListener('load', () => {
+                runTransaction(viewsRef, (currVal) => (currVal || 0) + 1);
+            });
+        } else {
+            console.log("Development mode detected: view counter not incremented.");
+        }
+
+        // 2. REAL-TIME UI LISTENERS (Views, Likes, Active Users)
+        onValue(viewsRef, (snapshot) => {
+            const data = snapshot.val();
+            const viewEl = document.getElementById('view-count');
+            if (viewEl) viewEl.textContent = data || 0;
+        });
+
+        onValue(likesRef, (snapshot) => {
+            const data = snapshot.val();
+            const likeEl = document.getElementById('like-count');
+            if (likeEl) likeEl.textContent = data || 0;
+        });
+
+        onValue(usersOffsetRef, (snapshot) => {
+            const data = snapshot.val();
+            const userStatEl = document.getElementById('stat-users-val');
+            if (userStatEl) userStatEl.textContent = (data || 370) + "+";
+        });
+
+        // 3. TRANSACTION-BASED LIKE BUTTON
+        const likeBtn = document.getElementById('like-btn');
+        const heartIcon = document.getElementById('heart-icon-svg');
+
+        // Check local flag to prevent multiple likes from one client
+        if (localStorage.getItem('hasLiked')) {
+            likeBtn.classList.add('liked');
+            heartIcon.setAttribute('fill', 'currentColor'); // Fill the heart if already liked
+        }
+
+        likeBtn.addEventListener('click', () => {
+            if (localStorage.getItem('hasLiked')) {
+                // Optional: add a "shake" or message if they've already liked it
+                likeBtn.style.animation = 'shake 0.4s';
+                setTimeout(() => likeBtn.style.animation = '', 400);
+                return;
+            }
+
+            // Execute Transaction
+            runTransaction(likesRef, (currVal) => (currVal || 0) + 1)
+                .then(() => {
+                    localStorage.setItem('hasLiked', 'true');
+                    likeBtn.classList.add('liked');
+                    heartIcon.setAttribute('fill', 'currentColor');
+                    // Simple pop effect
+                    likeBtn.style.transform = 'scale(1.2)';
+                    setTimeout(() => likeBtn.style.transform = '', 200);
+                })
+                .catch((err) => console.error("Like transaction failed:", err));
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 

@@ -1,0 +1,11 @@
+Görüm — ýörite Türkmenistan üçin gurlan goşulan hakykat (AR) esasly söwda meýdançasy. Ol alyjylara mebel, elektronika we beýleki önümleri satyn almazdan ozal öz ýaşaýyş jaýlarynda görmäge mümkinçilik berýär — onlaýn söwda bilen hakyky tejribe arasyndaky boşlugy doldurýar.
+
+Esasy aýratynlyklary:
+• ARCore we Filament rendering motory arkaly AR önüm wizualizasiýasy
+• Şahsyýet tassyklamasy bilen satyjy barlag ulgamy
+• Blind review ulgamy — tassyklanan alyjylardan tarapsyz bahalar
+• Gepleşikler we hödürlemeleri yzarlaş bilen geleşik dolandyryşy
+• Bahalaryň düşmegi we täze bildirişler barada real wagt habarnamalary
+• Köp sanly kategoriýa: mebel, tehnologiýa, öý harytlary we ş.m.
+
+Programma Türkmen bazaryna häzirki zaman e-söwda mümkinçiliklerini getirmek, ynamy, aýdyňlygy we gyzykly ulanyjy tejribesini üpjün etmek üçin niýetlenendir.
