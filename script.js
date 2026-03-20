@@ -340,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (await checkImage(url)) shots.push(url);
             const url_png = `./${folder}/screen_shot${i}.png`;
             if (await checkImage(url_png)) shots.push(url_png);
+            else break;
         }
         return shots;
     }
