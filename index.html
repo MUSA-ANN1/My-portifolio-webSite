@@ -28,6 +28,7 @@
                 <li><a href="#education" class="nav-link" data-i18n="nav_education">Education</a></li>
                 <li><a href="#certificates" class="nav-link" data-i18n="nav_certificates">Certificates</a></li>
                 <li><a href="#timeline" class="nav-link" data-i18n="nav_journey">Journey</a></li>
+                <li><a href="#reviews" class="nav-link" data-i18n="nav_reviews">Reviews</a></li>
                 <li><a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a></li>
                 <li><a href="#" class="nav-link" id="settings-desktop-btn" data-i18n="nav_settings">Settings</a></li>
             </ul>
@@ -50,6 +51,7 @@
         <a href="#education" class="mobile-link" data-i18n="nav_education">Education</a>
         <a href="#certificates" class="mobile-link" data-i18n="nav_certificates">Certificates</a>
         <a href="#timeline" class="mobile-link" data-i18n="nav_journey">Journey</a>
+        <a href="#reviews" class="mobile-link" data-i18n="nav_reviews">Reviews</a>
         <a href="#contact" class="mobile-link" data-i18n="nav_contact">Contact</a>
         <a href="#" class="mobile-link" id="settings-mobile-btn" data-i18n="nav_settings">Settings</a>
     </div>
@@ -439,6 +441,67 @@
         </div>
     </section>
 
+    <!-- ========== REVIEWS ========== -->
+    <section id="reviews">
+        <div class="container">
+            <span class="section-label" data-i18n="reviews_label">REVIEWS</span>
+            <h2 class="section-title" data-i18n="reviews_title">Community Feedback</h2>
+
+            <div class="reviews-wrapper" id="reviews-wrapper">
+                <!-- Stats Chart (hidden by default) -->
+                <div class="stats-chart-panel" id="stats-chart-panel">
+                    <div class="chart-header">
+                        <h3 class="chart-title" data-i18n="chart_title">Engagement Over Time</h3>
+                        <div class="chart-legend">
+                            <span class="legend-item legend-views"><span class="legend-dot"></span> <span
+                                    data-i18n="reviews">Reviews</span></span>
+                            <span class="legend-item legend-likes"><span class="legend-dot"></span> <span
+                                    data-i18n="likes">Likes</span></span>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="chart-container">
+                        <canvas id="stats-chart"></canvas>
+                        <div class="chart-tooltip" id="chart-tooltip"></div>
+                    </div>
+                    <p class="chart-hint" data-i18n="chart_hint">Drag to explore other dates</p>
+                </div>
+
+                <!-- Interaction Panel -->
+                <div class="reviews-interaction" id="reviews-interaction">
+                    <div class="interaction-counters">
+                        <div class="interaction-big-stat">
+                            <svg class="stat-icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <div class="big-stat-info">
+                                <span class="big-stat-number" id="view-count">...</span>
+                                <span class="big-stat-label" data-i18n="stats_total_views">Total Views</span>
+                            </div>
+                        </div>
+                        <div class="interaction-big-stat">
+                            <button id="like-btn" class="like-btn-action">
+                                <svg id="heart-icon-svg" class="stat-icon-lg heart-icon" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <div class="big-stat-info">
+                                <span class="big-stat-number" id="like-count">...</span>
+                                <span class="big-stat-label" data-i18n="stats_total_likes">Total Likes</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="see-stats-btn" id="see-stats-btn" data-i18n="btn_see_stats">See statistics</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ========== CONTACT ========== -->
     <section id="contact">
         <div class="contact-container">
@@ -537,30 +600,7 @@
         </div>
     </div>
 
-    <!-- ========== INTERACTION STATS ========== -->
-    <div class="interaction-bar">
-        <div class="interaction-container">
-            <div class="interaction-item">
-                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <span id="view-count">...</span>
-                <span class="stat-label-inline" data-i18n="stats_views">views</span>
-            </div>
-            <button id="like-btn" class="like-btn-action">
-                <svg id="heart-icon-svg" class="stat-icon heart-icon" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                    </path>
-                </svg>
-                <span id="like-count">...</span>
-                <span class="stat-label-inline" data-i18n="stats_likes">likes</span>
-            </button>
-        </div>
-    </div>
+
 
     <script type="module" src="firebase-interaction.js"></script>
     <script src="script.js"></script>

@@ -1974,77 +1974,247 @@ input:checked+.theme-slider .clouds {
     box-shadow: var(--button-shadow);
 }
 
-/* Interaction Bar */
-.interaction-bar {
-    padding: 20px 0;
-    margin-top: 40px;
-    border-top: 1px solid var(--border-color);
-    background: rgba(var(--bg-rgb), 0.5);
-    backdrop-filter: blur(10px);
-}
+/* ============================================
+   REVIEWS SECTION
+   ============================================ */
 
-.interaction-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 40px;
+/* Wrapper: default = just interaction, expanded = side-by-side */
+.reviews-wrapper {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     gap: 30px;
 }
 
-.interaction-item,
-.like-btn-action {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--muted-text);
-    font-size: 14px;
-    font-family: inherit;
+.reviews-wrapper.expanded {
+    flex-direction: row;
+    align-items: flex-start;
 }
 
-.interaction-item {
-    cursor: default;
+/* Stats Chart Panel */
+.stats-chart-panel {
+    display: none;
+    flex: 1;
+    min-width: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    animation: fadeSlideUp 0.4s ease;
+}
+
+.reviews-wrapper.expanded .stats-chart-panel {
+    display: block;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted-text);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.legend-views .legend-dot {
+    background: #6366f1;
+}
+
+.legend-likes .legend-dot {
+    background: #c41e3a;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    cursor: grab;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.chart-container:active {
+    cursor: grabbing;
+}
+
+#stats-chart {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.chart-tooltip {
+    display: none;
+    position: absolute;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-color);
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.chart-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted-text);
+    margin-top: 10px;
+    opacity: 0.6;
+}
+
+/* Interaction Panel */
+.reviews-interaction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.reviews-wrapper.expanded .reviews-interaction {
+    flex-shrink: 0;
+    width: 260px;
+}
+
+.interaction-counters {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+}
+
+.interaction-big-stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.stat-icon-lg {
+    width: 32px;
+    height: 32px;
+    color: var(--muted-text);
+    flex-shrink: 0;
+}
+
+.big-stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.big-stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+.big-stat-label {
+    font-size: 12px;
+    color: var(--muted-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
 }
 
 .like-btn-action {
     background: transparent;
     border: none;
-    padding: 5px 12px;
-    border-radius: 20px;
+    padding: 8px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s ease;
+    color: var(--muted-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .like-btn-action:hover {
     background: rgba(196, 30, 58, 0.1);
     color: var(--accent-color);
+    transform: scale(1.1);
 }
 
 .like-btn-action.liked {
     color: var(--accent-color);
 }
 
-.stat-icon {
-    width: 18px;
-    height: 18px;
-    transition: var(--transition);
-}
-
-.stat-label-inline {
-    opacity: 0.7;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.heart-icon {
-    fill: none;
+.like-btn-action .stat-icon-lg {
+    color: inherit;
 }
 
 .liked .heart-icon {
     fill: currentColor;
     animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.see-stats-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--muted-text);
+    padding: 10px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.see-stats-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: rgba(196, 30, 58, 0.05);
+}
+
+.see-stats-btn.active {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes heartPop {
@@ -2083,10 +2253,22 @@ input:checked+.theme-slider .clouds {
     }
 }
 
+/* Responsive: Mobile */
 @media (max-width: 768px) {
-    .interaction-container {
+    .reviews-wrapper.expanded {
+        flex-direction: column;
+    }
+
+    .reviews-wrapper.expanded .reviews-interaction {
+        width: 100%;
+    }
+
+    .chart-container {
+        height: 220px;
+    }
+
+    .interaction-counters {
         flex-direction: row;
-        gap: 20px;
-        padding: 0 20px;
+        gap: 40px;
     }
 }
