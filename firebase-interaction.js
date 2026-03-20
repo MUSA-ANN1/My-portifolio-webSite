@@ -324,8 +324,8 @@ if (canvas) {
 
             tooltip.innerHTML = `
                 <div style="font-weight:600;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:2px;">${formatted}</div>
-                <div style="color:#6366f1;">• ${d.views}</div>
-                <div style="color:#c41e3a;">• ${d.likes}</div>
+                <div style="color:#6366f1;">${d.views}</div>
+                <div style="color:#c41e3a;">${d.likes}</div>
             `;
             tooltip.style.display = 'block';
             // Position
