@@ -100,11 +100,25 @@ const seeStatsBtn = document.getElementById('see-stats-btn');
 const wrapper = document.getElementById('reviews-wrapper');
 const canvas = document.getElementById('stats-chart');
 const tooltip = document.getElementById('chart-tooltip');
+const legendViews = document.querySelector('.legend-views');
+const legendLikes = document.querySelector('.legend-likes');
+
 let chartData = []; // [{date, views, likes}, ...]
 let scrollOffset = 0;
 let isDragging = false;
 let dragStartX = 0;
 let dragStartOffset = 0;
+let hoveredStat = null; // 'views', 'likes', or null
+
+// Legend Hover Interactions
+if (legendViews) {
+    legendViews.addEventListener('mouseenter', () => { hoveredStat = 'views'; drawChart(); });
+    legendViews.addEventListener('mouseleave', () => { hoveredStat = null; drawChart(); });
+}
+if (legendLikes) {
+    legendLikes.addEventListener('mouseenter', () => { hoveredStat = 'likes'; drawChart(); });
+    legendLikes.addEventListener('mouseleave', () => { hoveredStat = null; drawChart(); });
+}
 
 // Toggle stats panel
 if (seeStatsBtn) {
@@ -194,14 +208,18 @@ function drawChart() {
     const chartH = H - padT - padB;
 
     // Find max Y
-    let maxY = 1;
-    visible.forEach(d => { maxY = Math.max(maxY, d.views, d.likes); });
-    maxY = Math.ceil(maxY * 1.2);
+    let rawMax = 1;
+    visible.forEach(d => { rawMax = Math.max(rawMax, d.views, d.likes); });
+
+    // Ensure maxY is at least 4 (gridLines) and a multiple of gridLines 
+    // to keep Y labels as clean integers (0, 1, 2, 3, 4 vs 0, 0.5, 1, 1.5, 2)
+    const gridLines = 4;
+    let maxY = Math.ceil(rawMax / gridLines) * gridLines;
+    if (maxY < gridLines) maxY = gridLines;
 
     const stepX = visible.length > 1 ? chartW / (visible.length - 1) : chartW;
 
     // Grid lines
-    const gridLines = 4;
     ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     for (let i = 0; i <= gridLines; i++) {
@@ -210,6 +228,7 @@ function drawChart() {
         ctx.moveTo(padL, y);
         ctx.lineTo(W - padR, y);
         ctx.stroke();
+
         // Y labels
         ctx.fillStyle = textColor;
         ctx.font = '11px Space Grotesk, sans-serif';
@@ -234,6 +253,11 @@ function drawChart() {
 
     // Draw line helper
     function drawLine(data, key, color) {
+        // Handle filter hover
+        let opacity = 1.0;
+        if (hoveredStat && hoveredStat !== key) opacity = 0.1;
+        ctx.globalAlpha = opacity;
+
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
@@ -273,6 +297,8 @@ function drawChart() {
             ctx.fillStyle = color;
             ctx.fill();
         });
+
+        ctx.globalAlpha = 1.0;
     }
 
     drawLine(visible, 'views', viewsColor);
@@ -298,8 +324,8 @@ if (canvas) {
 
             tooltip.innerHTML = `
                 <div style="font-weight:600;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:2px;">${formatted}</div>
-                <div style="color:#6366f1;">• On this day ${d.views} users reviewed site</div>
-                <div style="color:#c41e3a;">• In ${formatted} ${d.likes} new users liked it</div>
+                <div style="color:#6366f1;">• ${d.views}</div>
+                <div style="color:#c41e3a;">• ${d.likes}</div>
             `;
             tooltip.style.display = 'block';
             // Position
