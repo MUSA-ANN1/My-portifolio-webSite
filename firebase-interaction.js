@@ -29,14 +29,25 @@ const dailyViewsRef = ref(db, `stats/daily/${today}/views`);
 const dailyLikesRef = ref(db, `stats/daily/${today}/likes`);
 
 // 1. AUTO-INCREMENT VIEW COUNTER (ONLY ON FIRST VISIT)
-const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-const hasVisitedBefore = localStorage.getItem('has-visited-before');
+const isLocal = [
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
+    '::1'
+].some(h => window.location.hostname.includes(h)) || window.location.protocol === 'file:';
 
-if (!isLocal && !hasVisitedBefore) {
+const isFirstVisitKey = 'portfolio-visited-before';
+
+if (!isLocal && !localStorage.getItem(isFirstVisitKey)) {
     window.addEventListener('load', () => {
+        // Double check within the callback for race conditions
+        if (localStorage.getItem(isFirstVisitKey)) return;
+
+        // Mark as visited IMMEDIATELY to prevent double firing on split-second loads
+        localStorage.setItem(isFirstVisitKey, 'true');
+
         runTransaction(viewsRef, (c) => (c || 0) + 1);
         runTransaction(dailyViewsRef, (c) => (c || 0) + 1);
-        localStorage.setItem('has-visited-before', 'true');
     });
 }
 
