@@ -1,0 +1,74 @@
+// ============================================
+// FIREBASE INTERACTION MODULE
+// ============================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+// IMPORTANT: Do NOT commit your actual API Key if you want to avoid Google's auto-leaks.
+// However, Firebase Client API Keys are designed to be public to identify your app.
+// THE TRUE SECURITY comes from RESTRICTING THIS KEY to your domain (e.g., yourname.github.io)
+// in the Google Cloud/Firebase Console.
+import { firebaseConfig } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const viewsRef = ref(db, 'stats/site_views');
+const likesRef = ref(db, 'stats/site_likes');
+const usersOffsetRef = ref(db, 'stats/active_users_offset');
+
+// 1. AUTO-INCREMENT VIEW COUNTER (with Hostname check)
+const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+if (!isLocal) {
+    window.addEventListener('load', () => {
+        runTransaction(viewsRef, (currVal) => (currVal || 0) + 1);
+    });
+}
+
+// 2. REAL-TIME UI LISTENERS (Views, Likes, Active Users)
+onValue(viewsRef, (snapshot) => {
+    const data = snapshot.val();
+    const viewEl = document.getElementById('view-count');
+    if (viewEl) viewEl.textContent = data || 0;
+});
+
+onValue(likesRef, (snapshot) => {
+    const data = snapshot.val();
+    const likeEl = document.getElementById('like-count');
+    if (likeEl) likeEl.textContent = data || 0;
+});
+
+onValue(usersOffsetRef, (snapshot) => {
+    const data = snapshot.val();
+    const userStatEl = document.getElementById('stat-users-val');
+    if (userStatEl) userStatEl.textContent = (data || 370) + "+";
+});
+
+// 3. TRANSACTION-BASED LIKE BUTTON
+const likeBtn = document.getElementById('like-btn');
+const heartIcon = document.getElementById('heart-icon-svg');
+
+if (localStorage.getItem('hasLiked')) {
+    if (likeBtn) likeBtn.classList.add('liked');
+    if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
+}
+
+if (likeBtn) {
+    likeBtn.addEventListener('click', () => {
+        if (localStorage.getItem('hasLiked')) {
+            likeBtn.style.animation = 'shake 0.4s';
+            setTimeout(() => likeBtn.style.animation = '', 400);
+            return;
+        }
+
+        runTransaction(likesRef, (currVal) => (currVal || 0) + 1)
+            .then(() => {
+                localStorage.setItem('hasLiked', 'true');
+                likeBtn.classList.add('liked');
+                if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
+                likeBtn.style.transform = 'scale(1.2)';
+                setTimeout(() => likeBtn.style.transform = '', 200);
+            })
+            .catch((err) => console.error("Like error:", err));
+    });
+}
