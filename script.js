@@ -337,9 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const shots = [];
         for (let i = 1; i <= 20; i++) {
             const url = `./${folder}/screen_shot${i}.jpg`;
-            if (await checkImage(url)) shots.push(url);
             const url_png = `./${folder}/screen_shot${i}.png`;
-            if (await checkImage(url_png)) shots.push(url_png);
+            if (await checkImage(url) || await checkImage(url_png)) {
+                if (await checkImage(url)) shots.push(url);
+                else shots.push(url_png);
+            }
             else break;
         }
         return shots;
