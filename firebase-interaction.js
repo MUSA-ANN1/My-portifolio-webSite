@@ -28,12 +28,15 @@ const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 const dailyViewsRef = ref(db, `stats/daily/${today}/views`);
 const dailyLikesRef = ref(db, `stats/daily/${today}/likes`);
 
-// 1. AUTO-INCREMENT VIEW COUNTER
+// 1. AUTO-INCREMENT VIEW COUNTER (ONLY ON FIRST VISIT)
 const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-if (!isLocal) {
+const hasVisitedBefore = localStorage.getItem('has-visited-before');
+
+if (!isLocal && !hasVisitedBefore) {
     window.addEventListener('load', () => {
         runTransaction(viewsRef, (c) => (c || 0) + 1);
         runTransaction(dailyViewsRef, (c) => (c || 0) + 1);
+        localStorage.setItem('has-visited-before', 'true');
     });
 }
 
