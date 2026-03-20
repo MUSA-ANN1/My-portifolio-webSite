@@ -17,8 +17,8 @@ const firebaseConfig = {
     projectId: _d("bXktcG9ydGlmb2xpby13ZWJzaXRlLXByb2plY3Q="),
     storageBucket: _d("bXktcG9ydGlmb2xpby13ZWJzaXRlLXByb2plY3QuZmlyZWJhc2VzdG9yYWdlLmFwcA=="),
     messagingSenderId: _d("OTcwNDY1MzU2NDMz"),
-    appId: _d("MToxNDQyNzIxNzQ2MDU6d2ViOjdjYjU2MTkwMzEyOTRkMTIxMjZkMzA="),
-    measurementId: _d("Ry1RMUcxR05XMVZW")
+    appId: _d("MTo5NzA0NjUzNTY0MzM6d2ViOjdjYjU2MTkwMzEyOTRkMTIxMjZkMzA="),
+    measurementId: _d("Ry1RMUcxR05XMVpW")
 };
 
 const app = initializeApp(firebaseConfig);
