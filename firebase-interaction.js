@@ -1,8 +1,8 @@
 // ============================================
 // FIREBASE INTERACTION MODULE
 // ============================================
-import { initializeApp } from "https://cdn.jsdelivr.net/npm/firebase@9.22.1/firebase-app/+esm";
-import { getDatabase, ref, runTransaction, onValue } from "https://cdn.jsdelivr.net/npm/firebase@9.22.1/firebase-database/+esm";
+import { initializeApp } from "./firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } from "./firebase-database.js";
 
 // The API key is base64-encoded to prevent GitHub's automated scanner from
 // flagging it as a "leaked secret." Firebase client keys are DESIGNED to be
