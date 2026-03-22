@@ -1,0 +1,19 @@
+Berk Bilim is an educational Android app combining two powerful tools
+in one: a mental arithmetic trainer and a career guidance system based
+on the Turkish Vocational Interest Inventory (Mesleki Eğilim Envanteri).
+
+Mental Arithmetic:
+Train your brain with sequential number calculations. Choose from Easy,
+Medium, Hard, or fully Custom modes — set your own number count, display
+speed, number range, and mathematical operations (+ − × ÷). Numbers appear
+one by one, and you calculate the total mentally. The app instantly tells
+you if your answer is correct.
+
+Career Advisor:
+Answer 160 carefully selected Yes/No questions from the Mesleki Eğilim
+Envanteri (MEE). The app evaluates 10 career categories simultaneously,
+assigning scores based on your responses. At the end, it reveals which
+career best matches your personality and interests.
+
+Ideal for students, parents, and anyone looking to sharpen their mind
+or explore their future career path.

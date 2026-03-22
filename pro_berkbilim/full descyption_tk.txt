@@ -1,0 +1,20 @@
+Berk Bilim — iki güýçli guraly özünde jemleýän bilim Android
+programmasydyr: akyl hasaby türgenleşdiriji we Türk Hünär
+Gyzyklanma Envanterine (Mesleki Eğilim Envanteri) esaslanýan
+hünär maslahat beriş ulgamy.
+
+Akyl Hasaby:
+Yzygiderli sanly hasaplamalar arkaly beýniňizi türgenleşdiriň.
+Aňsat, Orta, Kyn ýa-da Öz Düzgüniňiz — san sanyny, görkeziliş
+tizligini, san aralygyny we matematiki amallary (+ − × ÷)
+özüňiz sazlaň. Sanlar birin-birin görünýär, siz bolsa jemi
+aklyňyzda hasaplaýarsyňyz. Programma jogabyňyzyň dogrudygyny
+dessine aýdýar.
+
+Hünär Maslahatçysy:
+Mesleki Eğilim Envanterinden (MEE) alnan 160 sany Hawa/Ýok
+soragyna jogap beriň. Programma 10 hünär ugry boýunça baly
+hasaplaýar we iň ýokary bal alan hünäri görkezýär.
+
+Okuwçylar, ata-eneler we öz geljegini kesgitlemek isleýänler
+üçin iň amatly programma.

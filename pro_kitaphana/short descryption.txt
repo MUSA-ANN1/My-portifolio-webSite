@@ -1,1 +1,0 @@
-Library app with built-in AI chat assistant TakykAI and book management.

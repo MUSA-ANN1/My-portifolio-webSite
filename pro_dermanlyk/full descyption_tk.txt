@@ -2,9 +2,8 @@ Dermanlyk Ösümlikleri Türkmenistanyň dermanlyk ösümliklerini öz içine al
 
 Esasy aýratynlyklary:
 • Türkmenistanyň däp bolan dermanlyk ösümlikleriniň jikme-jik beýany bilen doly maglumat binasy
-• TensorFlow Lite arkaly AI bilen ösümlikleri tanamak — surata düşürip ösümligi anyklaň
-• Ösümlik lukmançylygy baradaky soraglara jogap bermek üçin içki Gemini AI kömekçisi
-• Köp dilli goldaw: Türkmen, Rus, Iňlis, Türk we Arap dilleri
+• Ösümlik lukmançylygy baradaky soraglara jogap bermek üçin içki Gemini AI we Qamar AI kömekçisi
+• Köp dilli goldaw: Türkmen, Rus, Iňlis we ýapon
 • Doly awtonom — uzak ýerlerde internet birikmesi bolmazdan işleýär
 • Baý botaniki illýustrasiýalar we taýýarlanyş gollanmalary
 • Simptomlar, ösümlik maşgalasy ýa-da sebit boýunça gözleg we süzgüç

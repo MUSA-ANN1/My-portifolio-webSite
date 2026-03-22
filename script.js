@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const age = calcYears(BIRTHDAY);
     const exp = calcYears(CODING_START);
 
-    // Initial setup for the IDs used elsewhere (if any)
     const setTextById = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTextById('auto-age', age);
     setTextById('auto-exp', exp);
-    // Hardcoded years removed here - now handled by updateLanguage i18n
 
     // ============================================
     // FIRE PARTICLE CANVAS (bright → dark)
@@ -51,32 +49,21 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Bright to dark flame colors
     const brightColors = [
-        [255, 221, 51],   // #ffdd33
-        [255, 170, 0],    // #ffaa00
-        [255, 136, 0],    // #ff8800
-        [255, 69, 0],     // #ff4500
+        [255, 221, 51],
+        [255, 170, 0],
+        [255, 136, 0],
+        [255, 69, 0],
     ];
     const darkColors = [
-        [196, 30, 58],    // #c41e3a
-        [139, 0, 0],      // #8b0000
-        [80, 10, 10],     // #500a0a
+        [196, 30, 58],
+        [139, 0, 0],
+        [80, 10, 10],
     ];
-
-    function lerpColor(bright, dark, t) {
-        const bi = Math.floor(Math.random() * bright.length);
-        const di = Math.floor(Math.random() * dark.length);
-        const r = Math.round(bright[bi][0] + (dark[di][0] - bright[bi][0]) * t);
-        const g = Math.round(bright[bi][1] + (dark[di][1] - bright[bi][1]) * t);
-        const b = Math.round(bright[bi][2] + (dark[di][2] - bright[bi][2]) * t);
-        return [r, g, b];
-    }
 
     class FireParticle {
         constructor(stagger) {
             this.reset(stagger);
-            // Store initial color indices for consistent interpolation
             this.brightIdx = Math.floor(Math.random() * brightColors.length);
             this.darkIdx = Math.floor(Math.random() * darkColors.length);
         }
@@ -99,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const traveled = Math.max(0, (this.startY - this.y) / canvas.height);
             this.opacity = Math.max(0, 0.8 - traveled * 0.9);
 
-            // Interpolate bright → dark
             const b = brightColors[this.brightIdx];
             const d = darkColors[this.darkIdx];
             const t = Math.min(1, traveled * 1.5);
@@ -176,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealTargets.forEach(el => observer.observe(el));
 
-    // Stagger groups
     const staggerGroups = [
         document.querySelectorAll('.exp-card'),
         document.querySelectorAll('.skill-category'),
@@ -189,9 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // SMOOTH SCROLL (Links & Fixed 0.5s Duration)
+    // SMOOTH SCROLL
     // ============================================
-
     function easeInOutQuad(t, b, c, d) {
         t /= d / 2;
         if (t < 1) return c / 2 * t * t + b;
@@ -208,10 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (startTime === null) startTime = currentTime;
             const timeElapsed = currentTime - startTime;
             const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
-
             window.scrollTo(0, run);
-            autoScrollTarget = run; // sync wheel scroll target
-
+            autoScrollTarget = run;
             if (timeElapsed < duration) {
                 requestAnimationFrame(animation);
             } else {
@@ -227,42 +209,28 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const target = document.querySelector(anchor.getAttribute('href'));
             if (target) {
-                // If hamburger menu is open, close it before scrolling
                 if (mobileMenu.classList.contains('active')) {
                     mobileMenu.classList.remove('active');
                     if (hamburger) hamburger.classList.remove('active');
                     if (hamburger2) hamburger2.classList.remove('active');
                     document.body.style.overflow = '';
                 }
-
-                // -60px to account for the sticky navbar height
                 const targetY = target.getBoundingClientRect().top + window.scrollY - 60;
-                smoothScrollTo(targetY, 500); // exactly 500ms
+                smoothScrollTo(targetY, 500);
             }
         });
     });
 
-    // Custom Momentum Scrolling for Mousewheel
     let isScrolling = false;
     let autoScrollTarget = window.scrollY;
 
     window.addEventListener('wheel', (e) => {
-        // Only apply if modal isn't open
         if (document.body.style.overflow === 'hidden') return;
-
         e.preventDefault();
-        // Speed multiplier for the scroll impulse
         const currentY = window.scrollY;
-
-        if (!isScrolling) {
-            autoScrollTarget = currentY;
-        }
-
-        // Add delta to our target scroll position
+        if (!isScrolling) autoScrollTarget = currentY;
         autoScrollTarget += e.deltaY * 0.8;
-        // Clamp it to the document bounds
         autoScrollTarget = Math.max(0, Math.min(autoScrollTarget, document.body.scrollHeight - window.innerHeight));
-
         if (!isScrolling) {
             isScrolling = true;
             smoothWheelScroll();
@@ -270,18 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
 
     function smoothWheelScroll() {
-        // Linear interpolation step
         const currentY = window.scrollY;
         const diff = autoScrollTarget - currentY;
-
-        // If we are close enough, snap and stop animation
         if (Math.abs(diff) < 1) {
             window.scrollTo(0, autoScrollTarget);
             isScrolling = false;
             return;
         }
-
-        // Move 10% toward the target each frame (easing factor)
         window.scrollBy(0, diff * 0.07);
         requestAnimationFrame(smoothWheelScroll);
     }
@@ -304,14 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // DYNAMIC PROJECT LOADING FROM FOLDERS
+    // DYNAMIC PROJECT LOADING
     // ============================================
     const projectsGrid = document.getElementById('projects-grid');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalContent = document.getElementById('modal-content');
     const modalClose = document.getElementById('modal-close');
 
-    // SVG icons
     const githubSVG = '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>';
     const playSVG = '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302a1 1 0 0 1 0 1.38l-2.302 2.302L15.176 12l2.522-2.492zM5.864 2.658L16.8 9.49l-2.302 2.302L5.864 2.658z"/></svg>';
     const downloadSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
@@ -325,12 +287,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function checkImage(url) {
-        return new Promise(resolve => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = url;
-        });
+        try {
+            const res = await fetch(url, { method: 'HEAD' });
+            return res.ok;
+        } catch {
+            return false;
+        }
     }
 
     async function getScreenshots(folder) {
@@ -338,11 +300,17 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i <= 20; i++) {
             const url = `./${folder}/screen_shot${i}.jpg`;
             const url_png = `./${folder}/screen_shot${i}.png`;
-            if (await checkImage(url) || await checkImage(url_png)) {
-                if (await checkImage(url)) shots.push(url);
-                else shots.push(url_png);
+            const isJpg = await checkImage(url);
+            if (isJpg) {
+                shots.push(url);
+                continue;
             }
-            else break;
+            const isPng = await checkImage(url_png);
+            if (isPng) {
+                shots.push(url_png);
+                continue;
+            }
+            break;
         }
         return shots;
     }
@@ -378,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     }
 
-    // Interactivity for carousels (Swipe/Drag/Buttons)
     function setupInteractiveCarousel(container, imagesCount) {
         if (imagesCount <= 1) return;
 
@@ -411,14 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (container.id === 'modal-carousel') window._modalInterval = autoplayInterval;
         }
 
-        function stopAutoplay() {
-            clearInterval(autoplayInterval);
-        }
-
-        function resetAutoplay() {
-            stopAutoplay();
-            startAutoplay();
-        }
+        function stopAutoplay() { clearInterval(autoplayInterval); }
+        function resetAutoplay() { stopAutoplay(); startAutoplay(); }
 
         if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); playPrev(); });
         if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); playNext(); });
@@ -477,10 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dots.forEach((dot, i) => {
-            dot.addEventListener('click', (e) => {
-                e.stopPropagation();
-                goTo(i);
-            });
+            dot.addEventListener('click', (e) => { e.stopPropagation(); goTo(i); });
         });
 
         startAutoplay();
@@ -499,7 +457,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         projectsData.forEach((p, idx) => {
             const langData = p.translations[currentLang] || {};
-            const name = langData.name || p.name;
+
+            // FIX: name always from name.txt, never translated
+            const name = p.name;
             const shortDesc = langData.short || p.shortDesc;
 
             const card = document.createElement('div');
@@ -572,12 +532,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const folderTranslations = {};
             for (const l of ['tk', 'ru', 'ja']) {
-                const [lName, lShort, lFull] = await Promise.all([
-                    fetchText(`./${folder}/name_${l}.txt`),
+                const [lShort, lFull] = await Promise.all([
                     fetchText(`./${folder}/short%20descryption_${l}.txt`),
                     fetchText(`./${folder}/full%20descyption_${l}.txt`),
                 ]);
-                if (lName || lShort || lFull) folderTranslations[l] = { name: lName, short: lShort, full: lFull };
+                if (lShort || lFull) folderTranslations[l] = { short: lShort, full: lFull };
             }
 
             const logoExists = await checkImage(`./${folder}/logo.jpg`);
@@ -585,7 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const links = parseLinks(linksRaw);
 
             projectsData.push({
-                folder, name: name || folder,
+                folder,
+                name: name || folder,
                 shortDesc: shortDesc || '',
                 fullDesc: fullDesc || shortDesc || '',
                 techs: techs ? techs.split(',').map(t => t.trim()) : [],
@@ -604,65 +564,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     function openModal(project) {
         const langData = project.translations[currentLang] || {};
-        const name = langData.name || project.name;
-        const fullDesc = langData.full || project.fullDesc;
-        const { techs, links, downloads, screenshots, logoUrl } = project;
 
-        // Title
+        // FIX: name always from name.txt, never translated
+        const name = project.name;
+        const fullDesc = langData.full || project.fullDesc;
+        const { techs, links, downloads, screenshots } = project;
+
         document.getElementById('modal-title').textContent = name;
 
-        // Carousel
         const mc = document.getElementById('modal-carousel');
-        mc.style.height = ''; // Reset height to CSS default (250px)
-        mc.style.background = ''; // Reset background to CSS default (#0d0d0d)
+        mc.style.height = '';
+        mc.style.background = '';
 
         if (screenshots.length) {
             const imgs = screenshots.map(s => `<img src="${s}" alt="screenshot" draggable="false">`).join('');
             const dots = screenshots.map((_, i) => `<div class="carousel-dot${i === 0 ? ' active' : ''}" data-midx="${i}"></div>`).join('');
-
             let btns = '';
             if (screenshots.length > 1) {
                 btns = `<button class="carousel-btn prev" aria-label="Previous">${SVG_LEFT}</button><button class="carousel-btn next" aria-label="Next">${SVG_RIGHT}</button>`;
             }
-
-            // Set elements
             mc.innerHTML = `<div class="carousel-track">${imgs}</div>${btns}<div class="carousel-dots">${dots}</div>`;
             mc.style.display = '';
-
-            if (screenshots.length > 1) {
-                setupInteractiveCarousel(mc, screenshots.length);
-            }
+            if (screenshots.length > 1) setupInteractiveCarousel(mc, screenshots.length);
         } else {
             mc.style.display = 'none';
         }
 
-        // Badges
         const badgesEl = document.getElementById('modal-badges');
         let badges = '';
         if (links.isDev) badges += `<span class="project-badge badge-orange">${translations[currentLang].pro_in_dev}</span>`;
         if (downloads) badges += `<span class="project-badge badge-crimson">${downloads} ${translations[currentLang].pro_users}</span>`;
         badgesEl.innerHTML = badges;
 
-        // Description
         document.getElementById('modal-desc').textContent = fullDesc;
-
-        // Techs
         document.getElementById('modal-techs').innerHTML = techs.map(t => `<span>${t}</span>`).join('');
 
-        // Actions
         let actionsHTML = '';
         if (links.github) actionsHTML += `<a href="${links.github}" target="_blank" class="ma-outline">${githubSVG} GitHub</a>`;
         if (links.playMarket) actionsHTML += `<a href="${links.playMarket}" target="_blank" class="ma-primary">${playSVG} Play Store</a>`;
         if (links.googleDrive) actionsHTML += `<a href="${links.googleDrive}" target="_blank" class="ma-download">${downloadSVG} Download APK</a>`;
         document.getElementById('modal-actions').innerHTML = actionsHTML;
 
-        // Prevent Scrollbar Jump
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.paddingRight = `${scrollbarWidth}px`;
         const navbar = document.getElementById('navbar');
         if (navbar) navbar.style.paddingRight = `${scrollbarWidth}px`;
 
-        // Show
         modalOverlay.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
@@ -672,29 +619,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     function openCertModal(cert) {
         const langData = cert.translations[currentLang] || {};
-        const name = langData.name || cert.name;
+
+        // FIX: name always from name.txt, never translated
+        const name = cert.name;
         const desc = langData.desc || cert.desc;
 
         document.getElementById('modal-title').textContent = name;
         document.getElementById('modal-desc').textContent = desc;
-
-        // Hide unused project fields
         document.getElementById('modal-badges').innerHTML = '';
         document.getElementById('modal-techs').innerHTML = '';
         document.getElementById('modal-actions').innerHTML = '';
 
-        // Carousel just for one photo tightly wrapped
         const mc = document.getElementById('modal-carousel');
         if (cert.photoUrl) {
             mc.innerHTML = `<img src="${cert.photoUrl}" alt="${cert.name}" style="width:100%;height:auto;max-height:60vh;object-fit:contain;border-radius:12px;display:block;">`;
             mc.style.display = '';
-            mc.style.height = 'auto'; // Let the image dictate the exact size
-            mc.style.background = 'transparent'; // Remove letterbox background
+            mc.style.height = 'auto';
+            mc.style.background = 'transparent';
         } else {
             mc.style.display = 'none';
         }
 
-        // Prevent Scrollbar Jump
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.paddingRight = `${scrollbarWidth}px`;
         const navbar = document.getElementById('navbar');
@@ -710,21 +655,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.paddingRight = '';
         const navbar = document.getElementById('navbar');
         if (navbar) navbar.style.paddingRight = '';
-
         if (window._modalInterval) { clearInterval(window._modalInterval); window._modalInterval = null; }
     }
 
     modalClose.addEventListener('click', closeModal);
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
-    });
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // ============================================
-    // LOAD PROJECTS
-    // ============================================
     loadProjects();
 
     // ============================================
@@ -739,8 +676,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleLimit = isMobile ? 5 : 10;
 
         certsData.forEach((c, idx) => {
-            const langData = c.translations[currentLang] || {};
-            const name = langData.name || c.name;
+            // FIX: name always from name.txt, never translated
+            const name = c.name;
 
             const card = document.createElement('div');
             card.className = 'cert-card fade-up visible';
@@ -805,11 +742,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const folderTranslations = {};
             for (const l of ['tk', 'ru', 'ja']) {
-                const [lName, lDesc] = await Promise.all([
-                    fetchText(`./${folder}/name_${l}.txt`),
-                    fetchText(`./${folder}/descryption_${l}.txt`),
-                ]);
-                if (lName || lDesc) folderTranslations[l] = { name: lName, desc: lDesc };
+                const lDesc = await fetchText(`./${folder}/descryption_${l}.txt`);
+                if (lDesc) folderTranslations[l] = { desc: lDesc };
             }
 
             let photoUrl = null;
@@ -817,15 +751,15 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (await checkImage(`./${folder}/photo.png`)) photoUrl = `./${folder}/photo.png`;
 
             certsData.push({
-                folder, name: name || folder, desc: desc || '', photoUrl,
+                folder,
+                name: name || folder,
+                desc: desc || '',
+                photoUrl,
                 translations: folderTranslations
             });
         }
         renderCertificates();
     }
-
-
-
 
     // ============================================
     // SETTINGS & i18n
@@ -885,6 +819,8 @@ document.addEventListener('DOMContentLoaded', () => {
             skills_cat_backend: "Backend & Tools",
             skills_cat_dev: "Dev Tools",
             skills_cat_learning: "Learning",
+            skills_cat_sys: "Networking & Systems",
+            skills_cat_design: "Design & Creative",
             certificates_label: "CERTIFICATES",
             certificates_title: "My Achievements",
             btn_see_all_certs: "See all certificates",
@@ -1010,6 +946,8 @@ document.addEventListener('DOMContentLoaded', () => {
             skills_cat_backend: "Backend we Gurallar",
             skills_cat_dev: "Programmirleme Gurallary",
             skills_cat_learning: "Öwrenilýänler",
+            skills_cat_sys: "Tor we Ulgamlar",
+            skills_cat_design: "Dizaýn we Döredijilik",
             nav_reviews: "Synlar",
             reviews: "Synlar",
             likes: "Halanlar",
@@ -1052,24 +990,24 @@ document.addEventListener('DOMContentLoaded', () => {
             exp_role_gunbatar: "Programma üpjünçisi",
             exp_date_gunbatar: "Ýanwar 2024 — Fewral 2025",
             exp_p_web_gunbatar: "Okuw merkezini dolandyrmak üçin Full-Stack web programmasy",
-            exp_li_web_gunbatar_1: "Noldan doly aýratynlykly web sahypasyny hödürlemek üçin topar bilen hyzmatdaşlyk etdi, hakyky görnüşli (HTML, CSS, JS) we yzky tarapyny (Laravel, PHP) durmuşa geçirdi.",
+            exp_li_web_gunbatar_1: "Noldan doly aýratynlykly web sahypasyny hödürlemek üçin topar bilen hyzmatdaşlyk etdi.",
             exp_li_web_gunbatar_2: "Ähli enjamlar üçin optimallaşdyrylan jogapkärli dizaýnly esasy landing sahypalaryny gurdy.",
             exp_li_web_gunbatar_3: "Tassyklama we howpsuz maglumat işlemegi bilen onlaýn hasaba alyş formasyny gurdy.",
             exp_li_web_gunbatar_4: "Laravel-de rol esasly elýeterlilik we doly CRUD funksiýasy bilen talyplar we mugallymlar portallaryny döretdi.",
             exp_li_web_gunbatar_5: "Serwer ýerleşdirilmegini we hosting sazlamalaryny dolandyryp, ygtybarly wagty üpjün etdi.",
             exp_p_mob_gunbatar: "Okuw merkezi ykjam programmasy",
-            exp_li_mob_gunbatar_1: "Java (Android Studio) ulanyp, ähli web sahypasynyň aýratynlyklaryny özünde jemleýän, Firebase-e birikdirilen we Google Play Store-da üstünlikli çap edilen ykjam programmany gurdy we işe girizdi.",
-            exp_li_mob_gunbatar_2: "Web meýdançasy üçin MySQL maglumatlar bazasyny dizaýn etdi we optimallaşdyrdy, ykjam programmada hakyky wagtda maglumatlary dolandyrmak üçin Firebase ulandy.",
+            exp_li_mob_gunbatar_1: "Java (Android Studio) ulanyp, ähli web sahypasynyň aýratynlyklaryny özünde jemleýän ykjam programmany gurdy.",
+            exp_li_mob_gunbatar_2: "Web meýdançasy üçin MySQL maglumatlar bazasyny dizaýn etdi we optimallaşdyrdy.",
             exp_h_berk: "BERK MEBEL",
             exp_loc_berk: "Balkanabat, Türkmenistan",
             exp_role_berk: "3D dizaýn hünärmeni",
             exp_date_berk: "Sentýabr 2023 — Häzirki wagt",
             exp_p_berk: "3D mebel dizaýny we önüm inženerligi",
-            exp_li_berk_1: "Autodesk 3ds Max we Corona Renderer arkaly 190-dan gowrak aýratyn müşderi we jaý talaplaryna laýyk gelýän 3D mebel modellerini gurdy we hödürledi.",
-            exp_li_berk_2: "Müşderi tanyşdyryşlary üçin fotorealistik şekilleri we önümçilik üçin taýýar modelleri öndürdi.",
-            exp_li_berk_3: "Awtomobil ýuwuş enjamlary üçin 3D çap etmäge optimallaşdyrylan funksional çüýşe gapagynyň prototipini inženerledi.",
-            exp_li_berk_4: "Dizaýn talaplaryny jikme-jik 3D wizualizasiýalara we tehniki çyzgylara geçirmek üçin müşderiler bilen gönümel işledi.",
-            exp_li_berk_5: "Jaý, täjirçilik we ýöriteleşdirilen dürli mebel kategoriýalarynda yzygiderli hilli uly göwrümli iş akymyny saklady.",
+            exp_li_berk_1: "190-dan gowrak aýratyn 3D mebel modellerini gurdy we hödürledi.",
+            exp_li_berk_2: "Müşderi tanyşdyryşlary üçin fotorealistik şekilleri öndürdi.",
+            exp_li_berk_3: "3D çap etmäge optimallaşdyrylan funksional çüýşe gapagynyň prototipini inženerledi.",
+            exp_li_berk_4: "Dizaýn talaplaryny 3D wizualizasiýalara geçirmek üçin müşderiler bilen işledi.",
+            exp_li_berk_5: "Dürli mebel kategoriýalarynda yzygiderli hilli uly göwrümli iş akymyny saklady.",
             exp_tool_berk_1: "Autodesk 3ds Max",
             exp_tool_berk_2: "Corona Renderer",
             exp_tool_berk_3: "3D çap etmek",
@@ -1077,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
             edu_label: "BILIM",
             edu_title: "Okan ýerlerim",
             edu_h_gunbatar: "\"Günbatar Şapagy\" okuw merkezi",
-            edu_desc_gunbatar: "Kompýuter ylymlary boýunça giňişleýin bilim we amaly programmirleme endikleri — şol sanda Android işläp düzmek, web tehnologiýalary, maglumatlar bazasynyň dizaýny, algoritmleriň esaslary we iňlis dili endikleri.",
+            edu_desc_gunbatar: "Android işläp düzmek, web tehnologiýalary, maglumatlar bazasynyň dizaýny, algoritmleriň esaslary we iňlis dili endikleri.",
             edu_date_gunbatar: "Sentýabr 2022 — Maý 2027",
             edu_h_mekdep3: "Balkanabat şäheriniň 3-nji ýöriteleşdirilen orta mekdebi",
             edu_desc_mekdep3: "Daşary ýurt dillerine ýöriteleşdirilen orta mekdep.",
@@ -1087,9 +1025,9 @@ document.addEventListener('DOMContentLoaded', () => {
             journey_h_2024: "Ilkinji çap edilen programma",
             journey_p_2024: "Google Play Store-da ilkinji programmany işe girizdim.",
             journey_h_2025: "370+ Ulanyjy",
-            journey_p_2025: "Dermanlyk ösümlikler programmasy 370+ işjeň ulanyja ýetdi. AI kömekçisi we ösümlikleri tanamak ulgamy goşuldy.",
+            journey_p_2025: "Dermanlyk ösümlikler programmasy 370+ işjeň ulanyja ýetdi.",
             journey_h_2026: "AR Işläp düzmek",
-            journey_p_2026: "Görüm — AR söwda meýdançasyny gurup başladym. ARCore we Filament öwrenýärin.",
+            journey_p_2026: "Görüm — AR söwda meýdançasyny gurup başladym.",
             journey_h_2028: "MEXT Talyp haky 🎯",
             journey_p_2028: "Maksat: Tokio uniwersiteti. Kompýuter ylymlary bölümi."
         },
@@ -1115,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
             about_label: "ОБО МНЕ",
             about_title: "Кто я",
             about_p1: "Я начал кодить в 12 лет в Туркменистане — без ментора, команды и ресурсов. Только любопытство и Android Studio.",
-            about_p2: "Я создаю приложения, которые решают реальные проблемы. Мое приложение о лекарственных растениях имеет более 370 активных пользователей. Мой следующий проект — торговая площадка с дополненной реальностью (AR), которая позволяет увидеть товары в реальном пространстве перед покупкой.",
+            about_p2: "Я создаю приложения, которые решают реальные проблемы. Мое приложение о лекарственных растениях имеет более 370 активных пользователей.",
             about_p3: "Моя долгосрочная цель — стипендия MEXT в Токийском университете. Каждое приложение — это шаг к цели.",
             stats_title: "Краткая статистика",
             stat_age: "Возраст",
@@ -1138,6 +1076,8 @@ document.addEventListener('DOMContentLoaded', () => {
             skills_cat_backend: "Бэкенд и инструменты",
             skills_cat_dev: "Инструменты разработки",
             skills_cat_learning: "Изучение",
+            skills_cat_sys: "Сети и системы",
+            skills_cat_design: "Дизайн и Креатив",
             nav_reviews: "Отзывы",
             reviews: "Отзывы",
             likes: "Лайки",
@@ -1171,33 +1111,33 @@ document.addEventListener('DOMContentLoaded', () => {
             exp_date_iospo: "Апр. 2025 — Авг. 2025",
             exp_p_iospo: "Сайт портала для студентов и администраторов IOSPO",
             exp_li_iospo_1: "Сотрудничал с командой для создания официального сайта IOSPO полностью с нуля.",
-            exp_li_iospo_2: "Разработал порталы для студентов и администраторов, включая удобный и безопасный интерфейс панели управления.",
-            exp_li_iospo_3: "Внедрил аутентификацию по логину и паролю для усиления безопасности системы.",
-            exp_li_iospo_4: "Создал полную систему CRUD для эффективного управления пользователями и данными.",
-            exp_li_iospo_5: "Спроектировал, управлял и оптимизировал базу данных MySQL проекта, обеспечивая стабильность и масштабируемость.",
+            exp_li_iospo_2: "Разработал порталы для студентов и администраторов.",
+            exp_li_iospo_3: "Внедрил аутентификацию по логину и паролю.",
+            exp_li_iospo_4: "Создал полную систему CRUD для управления пользователями.",
+            exp_li_iospo_5: "Спроектировал и оптимизировал базу данных MySQL.",
             exp_h_gunbatar: "Учебный центр «Гюнбатар Шапагы»",
             exp_loc_gunbatar: "Балканабат, Туркменистан",
             exp_role_gunbatar: "Разработчик ПО",
             exp_date_gunbatar: "Янв. 2024 — Фев. 2025",
             exp_p_web_gunbatar: "Full-Stack веб-приложение для управления учебным центром",
-            exp_li_web_gunbatar_1: "Сотрудничал с командой для создания полнофункционального веб-сайта с нуля, реализуя как фронтенд (HTML, CSS, JavaScript), так и бэкенд (Laravel, PHP) компоненты.",
-            exp_li_web_gunbatar_2: "Создал основные целевые страницы с адаптивным дизайном, оптимизированным для всех размеров устройств.",
-            exp_li_web_gunbatar_3: "Разработал форму онлайн-регистрации с валидацией и безопасной обработкой данных.",
-            exp_li_web_gunbatar_4: "Создал порталы для студентов и преподавателей с доступом на основе ролей и полной функциональностью CRUD на Laravel.",
-            exp_li_web_gunbatar_5: "Занимался развертыванием сервера и настройкой хостинга, обеспечивая надежное время работы.",
+            exp_li_web_gunbatar_1: "Сотрудничал с командой для создания полнофункционального веб-сайта с нуля.",
+            exp_li_web_gunbatar_2: "Создал основные целевые страницы с адаптивным дизайном.",
+            exp_li_web_gunbatar_3: "Разработал форму онлайн-регистрации с валидацией.",
+            exp_li_web_gunbatar_4: "Создал порталы для студентов и преподавателей на Laravel.",
+            exp_li_web_gunbatar_5: "Занимался развертыванием сервера и настройкой хостинга.",
             exp_p_mob_gunbatar: "Мобильное приложение учебного центра",
-            exp_li_mob_gunbatar_1: "Разработал и запустил мобильное приложение на Java (Android Studio), интегрирующее все функции веб-сайта, подключенное к Firebase и успешно опубликованное в Google Play Store.",
-            exp_li_mob_gunbatar_2: "Спроектировал и оптимизировал базу данных MySQL для веб-платформы и использовал Firebase для управления данными в реальном времени в мобильном приложении.",
+            exp_li_mob_gunbatar_1: "Разработал и запустил мобильное приложение на Java, опубликованное в Google Play Store.",
+            exp_li_mob_gunbatar_2: "Спроектировал MySQL базу данных и использовал Firebase для реального времени.",
             exp_h_berk: "БЕРК МЕБЕЛЬ",
             exp_loc_berk: "Балканабат, Туркменистан",
             exp_role_berk: "Специалист по 3D-дизайну",
             exp_date_berk: "Сент. 2023 — Наст. время",
-            exp_p_berk: "Индивидуальный 3D-дизайн мебели и проектирование изделий",
-            exp_li_berk_1: "Разработал и представил более 190 индивидуальных 3D-моделей мебели, адаптированных к спецификациям клиентов и планировкам жилых помещений, используя Autodesk 3ds Max и Corona Renderer.",
-            exp_li_berk_2: "Создавал фотореалистичные рендеры для презентаций клиентам и готовые к производству модели для изготовления, обеспечивая точность размеров и достоверность материалов.",
-            exp_li_berk_3: "Спроектировал функциональный прототип крышки бутылки для линии оборудования для мойки автомобилей, оптимизированный для 3D-печати.",
-            exp_li_berk_4: "Работал напрямую с клиентами над переводом требований к дизайну в подробные 3D-визуализации и технические чертежи.",
-            exp_li_berk_5: "Поддерживал большой объем работы, обеспечивая стабильное качество в различных категориях мебели, включая жилую, коммерческую и изготовленную по индивидуальному заказу.",
+            exp_p_berk: "Индивидуальный 3D-дизайн мебели",
+            exp_li_berk_1: "Разработал более 190 индивидуальных 3D-моделей мебели в Autodesk 3ds Max.",
+            exp_li_berk_2: "Создавал фотореалистичные рендеры для клиентов.",
+            exp_li_berk_3: "Спроектировал прототип крышки бутылки для 3D-печати.",
+            exp_li_berk_4: "Работал с клиентами над 3D-визуализациями и чертежами.",
+            exp_li_berk_5: "Поддерживал высокий объём работы с постоянным качеством.",
             exp_tool_berk_1: "Autodesk 3ds Max",
             exp_tool_berk_2: "Corona Renderer",
             exp_tool_berk_3: "3D-печать",
@@ -1205,19 +1145,19 @@ document.addEventListener('DOMContentLoaded', () => {
             edu_label: "ОБРАЗОВАНИЕ",
             edu_title: "Где я учился",
             edu_h_gunbatar: "Учебный центр «Гюнбатар Шапагы»",
-            edu_desc_gunbatar: "Получил всесторонние знания в области компьютерных наук и практические навыки программирования, включая разработку под Android, веб-технологии, проектирование баз данных, основы алгоритмов и знание английского языка.",
+            edu_desc_gunbatar: "Android-разработка, веб-технологии, базы данных, алгоритмы и английский язык.",
             edu_date_gunbatar: "Сент. 2022 — Май 2027",
             edu_h_mekdep3: "Специализированная школа №3 г. Балканабат",
             edu_desc_mekdep3: "Средняя школа со специализацией на иностранных языках.",
             edu_date_mekdep3: "Сент. 2016 — Май 2028",
             journey_h_2022: "Первая строчка кода",
-            journey_p_2022: "Начал разработку под Android в 12 лет. Самоучка с нулевым руководством.",
+            journey_p_2022: "Начал разработку под Android в 12 лет. Самоучка.",
             journey_h_2024: "Первое опубликованное приложение",
             journey_p_2024: "Запустил первое приложение в Google Play Store.",
             journey_h_2025: "370+ пользователей",
-            journey_p_2025: "Приложение для лекарственных растений достигло 370+ активных пользователей. Интегрирован ИИ-помощник и распознавание растений.",
+            journey_p_2025: "Приложение достигло 370+ активных пользователей. Добавлен ИИ и распознавание растений.",
             journey_h_2026: "AR-разработка",
-            journey_p_2026: "Начал создавать Görüm — AR-маркетплейс. Изучаю ARCore и Filament.",
+            journey_p_2026: "Начал создавать Görüm — AR-маркетплейс.",
             journey_h_2028: "Стипендия MEXT 🎯",
             journey_p_2028: "Цель: Токийский университет. Факультет компьютерных наук."
         },
@@ -1242,9 +1182,9 @@ document.addEventListener('DOMContentLoaded', () => {
             hero_btn_github: "GitHub",
             about_label: "自己紹介",
             about_title: "プロフィール",
-            about_p1: "12歳の時にトルクメニスタンでプログラミングを始めました。メンターもチームもリソースもありませんでした。好奇心とAndroid Studioだけでした。",
-            about_p2: "実社会の課題を解決するアプリを作っています。薬用植物アプリは370人以上のユーザーがいます。次のプロジェクトは、購入前に商品を現実空間で確認できるARマーケットプレイスです。",
-            about_p3: "長期的な目標は、東京大学でMEXT奨学金を受けることです。開発するすべてのアプリが、その目標への一歩となります。",
+            about_p1: "12歳の時にトルクメニスタンでプログラミングを始めました。メンターもチームもリソースもありませんでした。",
+            about_p2: "実社会の課題を解決するアプリを作っています。薬用植物アプリは370人以上のユーザーがいます。",
+            about_p3: "長期的な目標は、東京大学でMEXT奨学金を受けることです。",
             stats_title: "クイック統計",
             stat_age: "年齢",
             stat_age_val: "[age] 歳",
@@ -1266,6 +1206,8 @@ document.addEventListener('DOMContentLoaded', () => {
             skills_cat_backend: "バックエンド & ツール",
             skills_cat_dev: "開発ツール",
             skills_cat_learning: "学習中",
+            skills_cat_sys: "ネットワーク ＆ システム",
+            skills_cat_design: "デザイン ＆ クリエイティブ",
             nav_reviews: "レビュー",
             reviews: "レビュー",
             likes: "いいね",
@@ -1280,7 +1222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stats_likes: "いいね",
             contact_label: "連絡先",
             contact_title: "お問い合わせ",
-            contact_desc: "コラボレーション、研究機会、奨学金関連の連絡をお待ちしています。ご連絡ください。",
+            contact_desc: "コラボレーション、研究機会、奨学金関連の連絡をお待ちしています。",
             reviews_label: "レビュー",
             reviews_title: "コミュニティのフィードバック",
             chart_title: "時間の経過に伴うエンゲージメント",
@@ -1299,33 +1241,33 @@ document.addEventListener('DOMContentLoaded', () => {
             exp_date_iospo: "2025年4月 — 2025年8月",
             exp_p_iospo: "IOSPO学生・管理者ポータルサイト",
             exp_li_iospo_1: "公式IOSPOウェブサイトをゼロから構築するため、チームと協力しました。",
-            exp_li_iospo_2: "ユーザーフレンドリーで安全なダッシュボードインターフェースを含む、学生および管理者用ポータルを開発しました。",
-            exp_li_iospo_3: "システムのセキュリティを強化するため、ログインとパスワード認証を実装しました。",
-            exp_li_iospo_4: "ユーザーとデータを効率的に管理するための完全なCRUDシステムを構築しました。",
-            exp_li_iospo_5: "プロジェクトのMySQLデータベースを設計、管理、最適化し、安定性と拡張性を確保しました。",
+            exp_li_iospo_2: "学生および管理者用ポータルを開発しました。",
+            exp_li_iospo_3: "ログインとパスワード認証を実装しました。",
+            exp_li_iospo_4: "完全なCRUDシステムを構築しました。",
+            exp_li_iospo_5: "MySQLデータベースを設計、管理、最適化しました。",
             exp_h_gunbatar: "「Gunbatar Shapagy」教育センター",
             exp_loc_gunbatar: "トルクメニスタン、バルカナバット",
             exp_role_gunbatar: "ソフトウェアデベロッパー",
             exp_date_gunbatar: "2024年1月 — 2025年2月",
             exp_p_web_gunbatar: "教育センター管理用フルスタックWebアプリケーション",
-            exp_li_web_gunbatar_1: "フロントエンド（HTML、CSS、JavaScript）とバックエンド（Laravel、PHP）の両方のコンポーネントを実装し、ゼロからフル機能のウェブサイトを納品するため、チームと協力しました。",
-            exp_li_web_gunbatar_2: "すべてのデバイスサイズに最適化された、レスポンシブデザインの主要なランディングページを構築しました。",
-            exp_li_web_gunbatar_3: "バリデーションと安全なデータ処理を備えたオンライン登録フォームを開発しました。",
-            exp_li_web_gunbatar_4: "Laravelで役割ベースのアクセスと完全なCRUD機能を備えた学生および教師用ポータルを作成しました。",
-            exp_li_web_gunbatar_5: "サーバーのデプロイとホスティング構成を担当し、信頼性の高いアップタイムを確保しました。",
+            exp_li_web_gunbatar_1: "ゼロからフル機能のウェブサイトを構築しました。",
+            exp_li_web_gunbatar_2: "レスポンシブデザインのランディングページを作成しました。",
+            exp_li_web_gunbatar_3: "オンライン登録フォームを開発しました。",
+            exp_li_web_gunbatar_4: "学生および教師用ポータルを作成しました。",
+            exp_li_web_gunbatar_5: "サーバーのデプロイとホスティングを担当しました。",
             exp_p_mob_gunbatar: "教育センターモバイルアプリケーション",
-            exp_li_mob_gunbatar_1: "Java（Android Studio）を使用してモバイルアプリケーションを開発・リリースし、すべてのウェブサイト機能を統合し、Firebaseに接続して、Google Playストアで正常に公開しました。",
-            exp_li_mob_gunbatar_2: "Webプラットフォーム用にMySQLデータベースを設計・最適化し、モバイルアプリでのリアルタイムデータの管理にFirebaseを使用しました。",
+            exp_li_mob_gunbatar_1: "Javaでモバイルアプリを開発し、Google Playで公開しました。",
+            exp_li_mob_gunbatar_2: "MySQLとFirebaseを使用しました。",
             exp_h_berk: "BERK MEBEL",
             exp_loc_berk: "トルクメニスタン、バルカナバット",
             exp_role_berk: "3Dデザインスペシャリスト",
             exp_date_berk: "2023年9月 — 現在",
-            exp_p_berk: "カスタム3D家具デザインおよび製品エンジニアリング",
-            exp_li_berk_1: "Autodesk 3ds MaxとCorona Rendererを使用して、個々のクライアントの仕様や住宅のレイアウトに合わせた190以上のオーダーメイド3D家具モデルをコンセプト化し、納品しました。",
-            exp_li_berk_2: "クライアントへのプレゼンテーション用のフォトリアルなレンダリングと、製造用の生産準備が整ったモデルを作成し、寸法の正確さと素材の忠実さを確保しました。",
-            exp_li_berk_3: "3Dプリンティング製造用に最適化された、自動車洗浄装置ライン用の機能的なボトルキャッププロトタイプを設計しました。",
-            exp_li_berk_4: "クライアントと直接連携し、デザイン要件を詳細な3Dビジュアライゼーションと技術図面に変換しました。",
-            exp_li_berk_5: "住宅、商業、カスタム仕様の各カテゴリーにわたって、一定の品質で大量のワークフローを維持しました。",
+            exp_p_berk: "カスタム3D家具デザイン",
+            exp_li_berk_1: "190以上の3D家具モデルを作成しました。",
+            exp_li_berk_2: "フォトリアルなレンダリングを作成しました。",
+            exp_li_berk_3: "3Dプリンティング用プロトタイプを設計しました。",
+            exp_li_berk_4: "クライアントと3Dビジュアライゼーションを作成しました。",
+            exp_li_berk_5: "高品質な大量ワークフローを維持しました。",
             exp_tool_berk_1: "Autodesk 3ds Max",
             exp_tool_berk_2: "Corona Renderer",
             exp_tool_berk_3: "3Dプリント",
@@ -1333,19 +1275,19 @@ document.addEventListener('DOMContentLoaded', () => {
             edu_label: "学歴",
             edu_title: "教育",
             edu_h_gunbatar: "「Gunbatar Shapagy」教育センター",
-            edu_desc_gunbatar: "Android開発、Webテクノロジー、データベース設計、アルゴリズムの基礎、英語能力を含む、包括的なコンピュータサイエンスの知識と実践的なプログラミングスキルを習得しました。",
+            edu_desc_gunbatar: "Android開発、Webテクノロジー、データベース設計、アルゴリズム、英語を習得しました。",
             edu_date_gunbatar: "2022年9月 — 2027年5月",
             edu_h_mekdep3: "バルカナバット第3専門学校",
             edu_desc_mekdep3: "外国語に特化した中学校・高校。",
             edu_date_mekdep3: "2016年9月 — 2028年5月",
             journey_h_2022: "最初のコード",
-            journey_p_2022: "12歳でAndroid開発を開始。独学でゼロから学びました。",
+            journey_p_2022: "12歳でAndroid開発を開始。独学で学びました。",
             journey_h_2024: "最初のアプリ公開",
             journey_p_2024: "Google Playストアで最初のアプリをリリースしました。",
             journey_h_2025: "ユーザー数370人突破",
-            journey_p_2025: "薬用植物アプリがアクティブユーザー370人を達成。AIアシスタントと植物認識機能を統合しました。",
+            journey_p_2025: "薬用植物アプリが370人以上のユーザーを達成しました。",
             journey_h_2026: "AR開発",
-            journey_p_2026: "ARマーケットプレイス「Görüm」の構築を開始。ARCoreとFilamentを学習中。",
+            journey_p_2026: "ARマーケットプレイス「Görüm」の構築を開始しました。",
             journey_h_2028: "MEXT奨学金獲得 🎯",
             journey_p_2028: "目標：東京大学 コンピュータサイエンス学科。"
         }
@@ -1357,11 +1299,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
                 let text = translations[lang][key];
-
-                // Replace dynamic placeholders
                 if (text.includes('[age]')) text = text.replace('[age]', age);
                 if (text.includes('[exp]')) text = text.replace('[exp]', exp);
-
                 el.innerHTML = text;
             }
         });
@@ -1373,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         langBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === lang));
     }
 
-    // Theme Switch
     if (themeCheckbox) {
         themeCheckbox.addEventListener('change', () => {
             const theme = themeCheckbox.checked ? 'light' : 'dark';
@@ -1382,26 +1320,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Language Switch
     langBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            updateLanguage(btn.getAttribute('data-lang'));
-        });
+        btn.addEventListener('click', () => { updateLanguage(btn.getAttribute('data-lang')); });
     });
 
-    // Modal Control
     const openSettings = (e) => {
         e.preventDefault();
-
-        // Prevent Scrollbar Jump
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.paddingRight = `${scrollbarWidth}px`;
         const navbar = document.getElementById('navbar');
         if (navbar) navbar.style.paddingRight = `${scrollbarWidth}px`;
-
         settingsModal.classList.add('active');
         document.body.style.overflow = 'hidden';
-
         mobileMenu.classList.remove('active');
         if (hamburger) hamburger.classList.remove('active');
         if (hamburger2) hamburger2.classList.remove('active');
@@ -1409,8 +1339,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeSettings = () => {
         settingsModal.classList.remove('active');
-
-        // Wait for animation to finish before restoring scroll
         setTimeout(() => {
             if (!settingsModal.classList.contains('active')) {
                 document.body.style.overflow = '';
@@ -1418,30 +1346,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const navbar = document.getElementById('navbar');
                 if (navbar) navbar.style.paddingRight = '';
             }
-        }, 400); // matches CSS transition 0.4s
+        }, 400);
     };
 
     if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
     const settingsDesktopBtn = document.getElementById('settings-desktop-btn');
     if (settingsDesktopBtn) settingsDesktopBtn.addEventListener('click', openSettings);
-
-    if (settingsClose) {
-        settingsClose.addEventListener('click', closeSettings);
-    }
-
+    if (settingsClose) settingsClose.addEventListener('click', closeSettings);
     if (settingsModal) {
         settingsModal.addEventListener('click', (e) => {
-            // Only close if clicking the backdrop (overlay), not the content
-            if (e.target === settingsModal) {
-                closeSettings();
-            }
+            if (e.target === settingsModal) closeSettings();
         });
     }
 
-    // Initial Load Settings
     const savedTheme = localStorage.getItem('portfolio-theme') || 'dark';
     const savedLang = localStorage.getItem('portfolio-lang') || 'en';
-
     document.documentElement.setAttribute('data-theme', savedTheme);
     if (themeCheckbox) themeCheckbox.checked = (savedTheme === 'light');
     updateLanguage(savedLang);

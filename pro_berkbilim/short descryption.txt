@@ -1,0 +1,2 @@
+Mental arithmetic trainer with 4 difficulty modes + Turkish Vocational
+Interest Inventory (MEE)-based career advisor with 160 questions and 10 career categories.
