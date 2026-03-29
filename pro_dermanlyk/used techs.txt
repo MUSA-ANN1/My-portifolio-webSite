@@ -1,1 +1,1 @@
-Java, XML, Gemini AI, Qamar AI, Offline, Multilingual
+Java, XML, Gemini AI, Qamar AI, TensorFlow Lite, Offline, Multilingual
