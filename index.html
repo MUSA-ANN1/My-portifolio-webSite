@@ -605,6 +605,36 @@
 
 
 
+    <!-- ========== AI ASSISTANT ========== -->
+    <div class="ai-assistant-fab" id="ai-fab" title="Chat with AI" aria-label="Open AI Assistant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </div>
+
+    <div class="ai-chat-window" id="ai-chat-window">
+        <div class="ai-chat-header">
+            <button class="ai-chat-close" id="ai-chat-close">&times;</button>
+            <span class="ai-chat-title" data-i18n="ai_assistant_title">Assistant</span>
+        </div>
+        <div class="ai-chat-messages" id="ai-chat-messages">
+            <div class="ai-message bot" data-i18n="ai_welcome">Hello! I'm Musa's virtual assistant. Ask me anything
+                about him!</div>
+        </div>
+        <div class="ai-chat-footer">
+            <input type="text" id="ai-chat-input" data-i18n-placeholder="ai_input_placeholder"
+                placeholder="Type a message...">
+            <button id="ai-chat-send" aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <script type="module" src="firebase-interaction.js"></script>
     <script src="script.js"></script>
 </body>

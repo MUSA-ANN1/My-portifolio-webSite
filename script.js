@@ -843,6 +843,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pro_in_dev: "In Development",
             pro_users: "Users",
             btn_show_less_certs: "Show less certificates",
+            ai_assistant_title: "AI Assistant",
+            ai_welcome: "Hello! I'm Musa's virtual assistant. Ask me anything about my projects or experience!",
+            ai_input_placeholder: "Ask me something...",
             exp_label: "WORK EXPERIENCE",
             exp_title: "Where I've Worked",
             exp_h_iospo: "International Online Subject and Project Olympiad (IOSPO)",
@@ -973,6 +976,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pro_in_dev: "Işlenilýär",
             pro_users: "Ulanyjy",
             btn_show_less_certs: "Az görün",
+            ai_assistant_title: "AI Kömekçi",
+            ai_welcome: "Salam! Men Musanyň wirtual kömekçisi. Onuň taslamalary ýa-da tejribesi barada islän zadyňyzy soraň!",
+            ai_input_placeholder: "Bir zat soraň...",
             exp_label: "TEJRIBE",
             exp_title: "Işleýän ýerlerim",
             exp_h_iospo: "Halkara Onlaýn ders we taslama olimpiadasy (IOSPO)",
@@ -1103,6 +1109,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pro_in_dev: "В разработке",
             pro_users: "Пользователей",
             btn_show_less_certs: "Показать меньше сертификатов",
+            ai_assistant_title: "AI Ассистент",
+            ai_welcome: "Привет! Я виртуальный помощник Мусы. Спросите меня о его проектах или опыте!",
+            ai_input_placeholder: "Спросите что-нибудь...",
             exp_label: "ОПЫТ РАБОТЫ",
             exp_title: "Где я работал",
             exp_h_iospo: "Международная онлайн-олимпиада по предметам и проектам (IOSPO)",
@@ -1233,6 +1242,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pro_in_dev: "開発中",
             pro_users: "ユーザー",
             btn_show_less_certs: "表示を減らす",
+            ai_assistant_title: "AIアシスタント",
+            ai_welcome: "こんにちは！ムサのバーチャルアシスタントです。彼のプロジェクトや経験について何でも聞いてください！",
+            ai_input_placeholder: "質問を入力...",
             exp_label: "職務経歴",
             exp_title: "職務経験",
             exp_h_iospo: "国際オンライン主題・プロジェクトオリンピック (IOSPO)",
@@ -1305,6 +1317,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Add support for placeholders
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[lang] && translations[lang][key]) {
+                el.placeholder = translations[lang][key];
+            }
+        });
+
         renderProjects();
         renderCertificates();
 
@@ -1366,4 +1386,90 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLanguage(savedLang);
 
     loadCertificates();
+
+    // ============================================
+    // AI ASSISTANT LOGIC
+    // ============================================
+    function initAIAssistant() {
+        const fab = document.getElementById('ai-fab');
+        const chatWindow = document.getElementById('ai-chat-window');
+        const closeBtn = document.getElementById('ai-chat-close');
+        const sendBtn = document.getElementById('ai-chat-send');
+        const input = document.getElementById('ai-chat-input');
+        const messagesContainer = document.getElementById('ai-chat-messages');
+
+        if (!fab) return;
+
+        fab.onclick = () => chatWindow.classList.add('active');
+        closeBtn.onclick = () => chatWindow.classList.remove('active');
+
+        function addMessage(text, role) {
+            const div = document.createElement('div');
+            div.className = `ai-message ${role}`;
+            div.textContent = text;
+            messagesContainer.appendChild(div);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return div;
+        }
+
+        async function getAIResponse(userText) {
+            // NOTE: Using the key directly here will get it revoked on GitHub.
+            // I recommend setting up a small Vercel/Netlify/Cloudflare proxy.
+            const API_KEY = "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"; // PASTE FOR LOCAL TESTING ONLY
+            const API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
+
+            // Musa's Info for the System Prompt
+            const musaInfo = `You are a helpful assistant for Musa Annagulyýew's portfolio. 
+            Musa is a ${age}-year-old Android Developer & AR Engineer from Turkmenistan.
+            He has ${exp}+ years of coding experience.
+            He targets the MEXT scholarship at the University of Tokyo.
+            His key projects: Dermanlyk (Medicinal Plants App with 455+ users), Görüm (AR Marketplace), and various work for "Gunbatar Shapagy" and "IOSPO".
+            Skills: Java, Kotlin, Python, JS, Android (Compose, ARCore), Backend (Firebase, MySQL).
+            He is open to collaboration. Respond concisely in English or the user's language.`;
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "moonshotai/kimi-k2-instruct",
+                    messages: [
+                        { role: "system", content: musaInfo },
+                        { role: "user", content: userText }
+                    ],
+                    temperature: 0.6,
+                    max_tokens: 500
+                })
+            });
+
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        async function handleSend() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            addMessage(text, 'user');
+
+            const botMsg = addMessage('...', 'bot');
+
+            try {
+                const responseText = await getAIResponse(text);
+                botMsg.textContent = responseText;
+            } catch (err) {
+                botMsg.textContent = "I'm offline right now. Please check your connection or contact Musa directly!";
+                console.error(err);
+            }
+        }
+
+        sendBtn.onclick = handleSend;
+        input.onkeypress = (e) => { if (e.key === 'Enter') handleSend(); };
+    }
+
+    initAIAssistant();
 });
