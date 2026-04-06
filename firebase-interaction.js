@@ -64,7 +64,7 @@ onValue(likesRef, (snap) => {
 
 onValue(usersOffsetRef, (snap) => {
     const el = document.getElementById('stat-users-val');
-    if (el) el.textContent = (snap.val() || 370) + "+";
+    if (el) el.textContent = (snap.val() || 600) + "+";
 });
 
 // 3. LIKE BUTTON
